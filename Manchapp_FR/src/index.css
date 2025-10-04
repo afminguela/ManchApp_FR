@@ -732,12 +732,11 @@ select.form-control {
 }
 
 @font-face {
-  font-family: 'FKGroteskNeue';
-  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
-    format('woff2');
+  font-family: "FKGroteskNeue";
+  src: url("https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2")
+    format("woff2");
 }
 
-/* END PERPLEXITY DESIGN SYSTEM */
 /* Estilos específicos de la aplicación lavadora */
 
 .main-container {
@@ -747,6 +746,11 @@ select.form-control {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  background-image: url("/washing-machine-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* Skip link para accesibilidad */
@@ -785,9 +789,9 @@ select.form-control {
 /* Fondo del campo verde */
 .washing-machine-container {
   width: 100%;
-  max-width: 800px;
-  height: 80vh;
-  max-height: 600px;
+  max-width: 1200px;
+  height: 90vh;
+  max-height: 800px;
   position: relative;
   display: flex;
   align-items: center;
@@ -797,57 +801,56 @@ select.form-control {
 .field-background {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #4ade80 0%, #16a34a 50%, #15803d 100%);
+  background: linear-gradient(135deg, #4bdce7 0%, #1697a31c 50%, #0a6f7d 100%);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 .grass-texture::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 2px,
-    rgba(255,255,255,0.05) 2px,
-    rgba(255,255,255,0.05) 4px
+    rgba(255, 255, 255, 0.05) 2px,
+    rgba(255, 255, 255, 0.05) 4px
   );
 }
 
-/* Lavadora principal */
+/* Lavadora principal - Tamaño doble */
 .washing-machine {
-  width: 320px;
-  height: 420px;
+  width: 640px;
+  height: 840px;
   background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%);
   border: 2px solid #cbd5e1;
   border-radius: var(--space-16);
   position: relative;
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   z-index: 10;
 }
 
-/* Panel de control */
+/* Panel de control - Tamaño ajustado */
 .control-panel {
-  height: 80px;
+  height: 160px;
   background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 100%);
   border-bottom: 1px solid #cbd5e1;
   border-radius: var(--space-16) var(--space-16) 0 0;
-  padding: var(--space-12);
+  padding: var(--space-24);
   display: flex;
-  gap: var(--space-16);
+  gap: var(--space-32);
   align-items: center;
 }
 
 .lcd-screen {
   flex: 1;
-  height: 56px;
+  height: 112px;
   background: #1e293b;
   border: 2px solid #475569;
   border-radius: var(--radius-base);
-  padding: var(--space-8);
+  padding: var(--space-16);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -924,7 +927,7 @@ select.form-control {
 }
 
 .power-icon::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -8px;
   left: 50%;
@@ -976,13 +979,14 @@ select.form-control {
   color: #f59e0b;
 }
 
-/* Puerta de la lavadora */
+/* Puerta de la lavadora - Tamaño ajustado */
 .washing-machine-door {
   position: absolute;
-  top: 90px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+  top: 180px;
+  left: 40px;
+  right: 40px;
+  bottom: 40px;
+  aspect-ratio: 1 / 1;
 }
 
 .door-frame {
@@ -992,17 +996,21 @@ select.form-control {
   border-radius: 50%;
   background: #475569;
   position: relative;
-  box-shadow: 
-    inset 0 4px 8px rgba(0, 0, 0, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
 }
 
 .door-glass {
   position: absolute;
   inset: 8px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(1px);
   backdrop-filter: blur(1px);
   overflow: hidden;
 }
@@ -1021,6 +1029,7 @@ select.form-control {
   border-radius: 50%;
   overflow: hidden;
   background: #374151;
+  aspect-ratio: 1 / 1;
 }
 
 .drum {
@@ -1030,6 +1039,7 @@ select.form-control {
   border-radius: 50%;
   position: relative;
   transition: transform var(--duration-normal) var(--ease-standard);
+  aspect-ratio: 1 / 1;
 }
 
 .drum.spinning {
@@ -1037,8 +1047,12 @@ select.form-control {
 }
 
 @keyframes drumRotation {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .drum-holes {
@@ -1056,12 +1070,34 @@ select.form-control {
   border: 1px solid #374151;
 }
 
-.hole:nth-child(1) { top: 20%; left: 50%; transform: translateX(-50%); }
-.hole:nth-child(2) { top: 50%; right: 20%; transform: translateY(-50%); }
-.hole:nth-child(3) { bottom: 20%; left: 50%; transform: translateX(-50%); }
-.hole:nth-child(4) { top: 50%; left: 20%; transform: translateY(-50%); }
-.hole:nth-child(5) { top: 30%; right: 30%; }
-.hole:nth-child(6) { bottom: 30%; left: 30%; }
+.hole:nth-child(1) {
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.hole:nth-child(2) {
+  top: 50%;
+  right: 20%;
+  transform: translateY(-50%);
+}
+.hole:nth-child(3) {
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.hole:nth-child(4) {
+  top: 50%;
+  left: 20%;
+  transform: translateY(-50%);
+}
+.hole:nth-child(5) {
+  top: 30%;
+  right: 30%;
+}
+.hole:nth-child(6) {
+  bottom: 30%;
+  left: 30%;
+}
 
 .door-handle {
   position: absolute;
@@ -1087,20 +1123,73 @@ select.form-control {
   outline-offset: 2px;
 }
 
-/* Secciones de contenido */
+/* Secciones de contenido - Ajustado para lavadora más grande */
 .login-section,
-.solutions-section {
+.solutions-section,
+.search-form {
   position: absolute;
-  top: 90px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  top: 180px;
+  left: 40px;
+  right: 40px;
+  bottom: 40px;
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-radius: var(--radius-lg);
-  padding: var(--space-20);
+  padding: var(--space-24);
   overflow: auto;
-  z-index: 20;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 140px;
+    left: 32px;
+    right: 32px;
+    bottom: 32px;
+    padding: var(--space-20);
+  }
+}
+
+@media (max-width: 768px) {
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 110px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+  }
+}
+
+@media (max-width: 600px) {
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 90px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    padding: var(--space-12);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 80px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: var(--space-8);
+    border-radius: var(--radius-sm);
+  }
 }
 
 .section-title {
@@ -1109,6 +1198,56 @@ select.form-control {
   margin-bottom: var(--space-16);
   text-align: center;
   color: var(--color-text);
+}
+
+/* Estilos específicos para SearchForm */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.search-form .search-form-header h3 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
+  margin-bottom: var(--space-8);
+}
+
+.search-form .search-form-header p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-24);
+}
+
+.search-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-24);
+  margin-bottom: var(--space-32);
+}
+
+.search-form .form-field label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-8);
+  font-size: var(--font-size-base);
+}
+
+.search-form .form-field select {
+  padding: var(--space-16);
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+.search-form .form-field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
 }
 
 /* Formulario de login */
@@ -1121,23 +1260,128 @@ select.form-control {
 /* Gestión de soluciones */
 .solutions-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: center;
   gap: var(--space-12);
   margin-bottom: var(--space-16);
   flex-wrap: wrap;
 }
 
+.back-to-search-btn {
+  background: var(--color-primary) !important;
+  color: white !important;
+  font-weight: var(--font-weight-semibold);
+  margin-right: auto;
+}
+
 .solutions-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-16);
+  max-height: 450px;
+  overflow-y: auto;
+  padding: var(--space-8);
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
+/* Panel de filtros */
+.filter-panel {
+  background: rgba(248, 250, 252, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius-base);
+  padding: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-16);
+}
+
+.filter-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.clear-filters-btn {
+  font-size: var(--font-size-sm);
+  padding: var(--space-8) var(--space-12);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-16);
+}
+
+.filter-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-12);
-  max-height: 200px;
+  gap: var(--space-8);
+}
+
+.filter-group label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.filter-select {
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-height: 120px;
   overflow-y: auto;
 }
 
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.checkbox-label:hover {
+  color: var(--color-primary);
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
 .solution-item {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: var(--radius-base);
   padding: var(--space-12);
   display: flex;
@@ -1234,6 +1478,25 @@ select.form-control {
   max-height: 80vh;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+  margin: 16px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    max-width: calc(100vw - 32px);
+    max-height: 85vh;
+    margin: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    max-width: calc(100vw - 16px);
+    max-height: 90vh;
+    margin: 8px;
+    border-radius: var(--radius-base);
+  }
 }
 
 .modal-header {
@@ -1281,8 +1544,76 @@ select.form-control {
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
-  max-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
+}
+
+/* Fila de formulario para campos horizontales */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Secciones de multi-select */
+.multi-select-section {
+  margin-top: var(--space-24);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-lighter);
+}
+
+.multi-select-section h4 {
+  margin: 0 0 var(--space-12) 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.checkbox-item:hover {
+  background: var(--color-primary-100);
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-item span {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  user-select: none;
 }
 
 .modal-actions {
@@ -1321,8 +1652,12 @@ select.form-control {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -1349,72 +1684,290 @@ select.form-control {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .washing-machine-container {
+    height: 85vh;
+    max-height: 700px;
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .washing-machine {
+    width: 560px;
+    height: 740px;
+  }
+}
+
 @media (max-width: 768px) {
   .washing-machine-container {
-    height: 90vh;
+    height: 80vh;
     max-height: none;
+    max-width: 100%;
+    padding: 0 12px;
   }
-  
+
   .washing-machine {
-    width: 280px;
-    height: 360px;
+    width: 420px;
+    height: 560px;
   }
-  
+
   .control-panel {
-    height: 70px;
-    padding: var(--space-8);
-  }
-  
-  .power-button {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .login-section,
-  .solutions-section {
+    height: 100px;
     padding: var(--space-12);
+    gap: var(--space-16);
+  }
+
+  .power-button {
+    width: 50px;
+    height: 50px;
+  }
+
+  .lcd-screen {
+    height: 76px;
+    padding: var(--space-12);
+  }
+
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 110px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    padding: var(--space-16);
     font-size: var(--font-size-sm);
   }
-  
+
   .solutions-actions {
-    flex-direction: column;
+    flex-direction: row;
+    gap: var(--space-8);
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
-  
+
+  .back-to-search-btn {
+    margin-right: auto;
+    width: auto;
+  }
+
+  .solutions-list {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    max-height: 300px;
+    gap: var(--space-12);
+  }
+
   .solution-item {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .solution-actions {
     flex-direction: row;
     justify-content: flex-end;
   }
-  
+
   .modal-content {
     margin: var(--space-8);
   }
-  
+
+  /* Mantener forma circular del tambor en tablets */
+  .drum-container {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .drum {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .washing-machine-door {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
   .connection-status {
     top: var(--space-8);
     right: var(--space-8);
     left: var(--space-8);
     text-align: center;
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 600px) {
+  .washing-machine-container {
+    height: 75vh;
+    padding: 0 8px;
+  }
+
+  .washing-machine {
+    width: 340px;
+    height: 450px;
+  }
+
+  .control-panel {
+    height: 80px;
+    padding: var(--space-8);
+    gap: var(--space-12);
+  }
+
+  .power-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .lcd-screen {
+    height: 60px;
+    padding: var(--space-8);
+    font-size: var(--font-size-sm);
+  }
+
+  .login-section,
+  .solutions-section,
+  .search-form {
+    top: 90px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    padding: var(--space-12);
   }
 }
 
 @media (max-width: 480px) {
+  .washing-machine-container {
+    max-width: 100%;
+    height: 70vh;
+    padding: 0 4px;
+  }
+
   .washing-machine {
-    width: 260px;
-    height: 340px;
+    width: 280px;
+    height: 380px;
   }
-  
-  .section-title {
-    font-size: var(--font-size-base);
+
+  .control-panel {
+    height: 70px;
+    padding: var(--space-6);
+    gap: var(--space-8);
   }
-  
-  .btn {
-    padding: var(--space-6) var(--space-12);
+
+  .power-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .lcd-screen {
+    height: 50px;
+    padding: var(--space-6);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Mantener forma circular del tambor en móviles */
+  .drum-container {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .drum {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .washing-machine-door {
+    top: 120px;
+    left: 30px;
+    right: 30px;
+    bottom: 80px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .door-glass {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .door-seal {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Asegurar que los agujeros del tambor también se mantengan circulares */
+  .hole {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .login-section,
+  .solutions-section {
+    top: 80px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: var(--space-8);
+    font-size: var(--font-size-xs);
+  }
+
+  .search-form {
+    top: 200px;
+    left: 12px;
+    right: 12px;
+    bottom: 20px;
+    padding: var(--space-6);
+    font-size: var(--font-size-xs);
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+  }
+
+  .search-form .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    margin-bottom: var(--space-16);
+  }
+
+  .search-form .form-field label {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-4);
+  }
+
+  .search-form .form-field select {
+    padding: var(--space-8);
+    font-size: var(--font-size-xs);
+  }
+
+  .search-form .search-form-header h3 {
     font-size: var(--font-size-sm);
+    margin-bottom: var(--space-8);
+  }
+
+  .search-form .search-form-header p {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-12);
+  }
+
+  .solutions-actions {
+    flex-direction: column;
+    gap: var(--space-8);
+    align-items: stretch;
+  }
+
+  .back-to-search-btn {
+    width: 100%;
+    font-size: var(--font-size-sm);
+    padding: var(--space-12);
+    margin-right: 0;
+    margin-bottom: var(--space-8);
+  }
+
+  .connection-status {
+    font-size: var(--font-size-xs);
+    padding: var(--space-4) var(--space-8);
   }
 }
 
@@ -1423,12 +1976,12 @@ select.form-control {
   .drum.spinning {
     animation: none;
   }
-  
+
   .loading-spinner {
     animation: none;
     border: 4px solid white;
   }
-  
+
   * {
     transition: none !important;
   }
@@ -1447,4 +2000,64 @@ button:focus-visible {
 .solution-tips {
   color: var(--color-text);
   opacity: 0.8;
+}
+
+/* Mejoras para táctiles en móviles */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-12) var(--space-20);
+    font-size: var(--font-size-base);
+  }
+
+  .btn--sm {
+    min-height: 36px;
+    min-width: 36px;
+    padding: var(--space-8) var(--space-16);
+  }
+
+  .btn--lg {
+    min-height: 52px;
+    padding: var(--space-16) var(--space-32);
+    font-size: var(--font-size-lg);
+  }
+
+  .power-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .custom-select,
+  input,
+  textarea {
+    min-height: 44px;
+    padding: var(--space-12) var(--space-16);
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .modal-close {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-8);
+  }
+
+  .door-handle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Optimizaciones para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover,
+  button:hover {
+    transform: none;
+  }
+
+  .btn:active,
+  button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
 }

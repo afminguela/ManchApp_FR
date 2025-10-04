@@ -1,188 +1,414 @@
-import { useState } from 'react'
-import './index.css'
+import { useState, useEffect } from "react";
+import "./index.css";
+import { supabaseService } from "./supabaseClient";
+
+// Componentes UI
+import SkipLink from "./components/ui/SkipLink";
+import LoadingOverlay from "./components/ui/LoadingOverlay";
+import Modal from "./components/ui/Modal";
+import ConfirmModal from "./components/ui/ConfirmModal";
+
+// Componentes de layout
+import ConnectionStatus from "./components/layout/ConnectionStatus";
+
+// Componentes de la lavadora
+import ControlPanel from "./components/washing-machine/ControlPanel";
+import WashingDoor from "./components/washing-machine/WashingDoor";
+
+// Componentes de autenticación
+import LoginSection from "./components/auth/LoginSection";
+
+// Componentes de soluciones
+import SolutionsSection from "./components/solutions/SolutionsSection";
+import SolutionForm from "./components/solutions/SolutionForm";
+import SearchForm from "./components/solutions/SearchForm";
 
 function App() {
-   const [isLoading, setIsLoading] = useState(false)
+  const VALID_CREDENTIALS = {
+    username: "admin",
+    password: "1234",
+  };
+
+  // Estados principales
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Procesando...");
+
+  // Estados de la aplicación
+  const [state, setState] = useState({
+    connected: false,
+    authenticated: false,
+    currentUser: null,
+    currentEditingSolution: null,
+  });
+
+  // Estados de la interfaz
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSolutions, setShowSolutions] = useState(false);
+  const [showSolutionModal, setShowSolutionModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSearchForm, setShowSearchForm] = useState(false);
+
+  // Estados de la pantalla y LEDs
+  const [screenDisplay, setScreenDisplay] = useState({
+    mainText: "ManchApp 2025",
+    statusText: "",
+  });
+
+  const [leds, setLeds] = useState({
+    power: false,
+    connection: false,
+    washing: false,
+  });
+
+  // Estado de conexión
+  const [connectionMessage, setConnectionMessage] = useState(
+    "Estado de conexión: Desconocido"
+  );
+
+  // Estado de soluciones (se cargarán desde Supabase)
+  const [solutions, setSolutions] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+
+  // Estado del modal de confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  // Cargar soluciones desde Supabase cuando el usuario está autenticado
+  useEffect(() => {
+    const loadSolutions = async () => {
+      if (state.authenticated) {
+        showLoading("Cargando soluciones...");
+        try {
+          const { data, error } = await supabaseService.getSolutions();
+          if (error) throw error;
+          setSolutions(data || []);
+        } catch (error) {
+          console.error("Error cargando soluciones:", error);
+          alert("Error al cargar las soluciones desde la base de datos");
+        }
+        hideLoading();
+      }
+    };
+
+    loadSolutions();
+  }, [state.authenticated]);
+
+  // Funciones helper
+  const showLoading = (message = "Procesando...") => {
+    setLoadingMessage(message);
+    setIsLoading(true);
+  };
+
+  const hideLoading = () => {
+    setIsLoading(false);
+  };
+
+  const updateScreen = (mainText, statusText = "") => {
+    setScreenDisplay({ mainText, statusText });
+  };
+
+  const updateLeds = (newLeds) => {
+    setLeds((prev) => ({ ...prev, ...newLeds }));
+  };
+
+  // Simular operación async
+  const simulateAsync = (duration = 2000) => {
+    return new Promise((resolve) => setTimeout(resolve, duration));
+  };
+
+  // Manejadores de eventos
+  const handlePowerButton = async () => {
+    if (!state.connected) {
+      showLoading("Verificando conexión con Supabase...");
+      updateLeds({ washing: true });
+
+      try {
+        // Verificar conexión real con Supabase
+        const connectionResult = await supabaseService.checkConnection();
+
+        if (connectionResult.connected) {
+          setState((prev) => ({ ...prev, connected: true }));
+          updateLeds({ power: true, connection: true, washing: false });
+          setConnectionMessage(`Estado: Conectado a Supabase`);
+          updateScreen("CONECTADO", "Base de datos lista");
+          setShowLogin(true);
+        } else {
+          throw new Error(connectionResult.error || "Error de conexión");
+        }
+      } catch (error) {
+        updateLeds({ power: false, connection: false, washing: false });
+        setConnectionMessage(`Estado: Error - ${error.message}`);
+        updateScreen("ERROR", "Conexión fallida");
+        console.error("Error de conexión:", error);
+      }
+
+      hideLoading();
+    }
+  };
+
+  const handleLogin = async (loginData) => {
+    showLoading("Autenticando...");
+    updateLeds({ washing: true });
+
+    try {
+      await simulateAsync(1500);
+
+      if (
+        loginData.username === VALID_CREDENTIALS.username &&
+        loginData.password === VALID_CREDENTIALS.password
+      ) {
+        setState((prev) => ({
+          ...prev,
+          authenticated: true,
+          currentUser: loginData.username,
+        }));
+        setShowLogin(false);
+        setShowSearchForm(true);
+        updateScreen("BIENVENIDO", `Usuario: ${loginData.username}`);
+        updateLeds({ washing: false });
+      } else {
+        throw new Error("Credenciales inválidas");
+      }
+    } catch {
+      alert("Error: Credenciales inválidas");
+      updateScreen("ERROR LOGIN", "Credenciales incorrectas");
+    }
+
+    hideLoading();
+  };
+
+  const handleLogout = () => {
+    setState({
+      connected: false,
+      authenticated: false,
+      currentUser: null,
+      currentEditingSolution: null,
+    });
+    setShowLogin(false);
+    setShowSolutions(false);
+    setShowSearchForm(false);
+    setSearchResults([]);
+    updateLeds({ power: false, connection: false, washing: false });
+    setConnectionMessage("Estado de conexión: Desconocido");
+    updateScreen("ManchApp 2025", "");
+  };
+
+  const handleSearch = async (materialId, sustanciaId) => {
+    showLoading("Buscando soluciones...");
+    updateLeds({ washing: true });
+
+    try {
+      const { data, error } =
+        await supabaseService.searchSolucionesByMaterialAndSustancia(
+          materialId,
+          sustanciaId
+        );
+
+      if (error) throw error;
+
+      setSearchResults(data || []);
+      setShowSearchForm(false);
+      setShowSolutions(true);
+      updateScreen(
+        "RESULTADOS",
+        `${data?.length || 0} soluciones encontradas${
+          data?.length === 0 ? " - mostrando todo el catálogo" : ""
+        }`
+      );
+      updateLeds({ washing: false });
+    } catch (error) {
+      console.error("Error en búsqueda:", error);
+      alert("Error al buscar soluciones. Inténtalo de nuevo.");
+      updateScreen("ERROR", "Búsqueda fallida");
+      updateLeds({ washing: false });
+    }
+
+    hideLoading();
+  };
+
+  const handleBackToSearch = () => {
+    setShowSolutions(false);
+    setShowSearchForm(true);
+    setSearchResults([]);
+    updateScreen("BIENVENIDO", `Usuario: ${state.currentUser}`);
+  };
+
+  const handleAddSolution = () => {
+    setState((prev) => ({ ...prev, currentEditingSolution: null }));
+    setShowSolutionModal(true);
+  };
+
+  const handleEditSolution = (id) => {
+    const solution = solutions.find((s) => s.id === id);
+    setState((prev) => ({ ...prev, currentEditingSolution: solution }));
+    setShowSolutionModal(true);
+  };
+
+  const handleDeleteSolution = (id) => {
+    const solution = solutions.find((s) => s.id === id);
+    setConfirmModal({
+      title: "Eliminar Solución",
+      message: `¿Estás seguro de que deseas eliminar "${solution?.title}"?`,
+      onConfirm: () => confirmDeleteSolution(id),
+    });
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteSolution = async (id) => {
+    showLoading("Eliminando solución...");
+
+    try {
+      const { error } = await supabaseService.deleteSolution(id);
+      if (error) throw error;
+
+      setSolutions((prev) => prev.filter((s) => s.id !== id));
+      setShowConfirmModal(false);
+      alert("Solución eliminada correctamente");
+    } catch (error) {
+      console.error("Error eliminando solución:", error);
+      alert(`Error al eliminar la solución: ${error.message}`);
+    }
+
+    hideLoading();
+  };
+
+  const handleSolutionSubmit = async (solutionData) => {
+    showLoading("Guardando solución...");
+
+    try {
+      if (state.currentEditingSolution) {
+        // Editar solución existente
+        const { data, error } = await supabaseService.updateSolution(
+          state.currentEditingSolution.id,
+          solutionData
+        );
+        if (error) throw error;
+
+        setSolutions((prev) =>
+          prev.map((s) =>
+            s.id === state.currentEditingSolution.id ? data[0] : s
+          )
+        );
+      } else {
+        // Agregar nueva solución
+        const { data, error } = await supabaseService.createSolution(
+          solutionData
+        );
+        if (error) throw error;
+
+        setSolutions((prev) => [...prev, data[0]]);
+      }
+
+      setShowSolutionModal(false);
+      setState((prev) => ({ ...prev, currentEditingSolution: null }));
+      alert("Solución guardada correctamente");
+    } catch (error) {
+      console.error("Error guardando solución:", error);
+      alert(`Error al guardar la solución: ${error.message}`);
+    }
+
+    hideLoading();
+  };
+
+  const handleCancelSolution = () => {
+    setShowSolutionModal(false);
+    setState((prev) => ({ ...prev, currentEditingSolution: null }));
+  };
+
+  const handleCancelConfirm = () => {
+    setShowConfirmModal(false);
+    setConfirmModal({ title: "", message: "", onConfirm: null });
+  };
 
   return (
     <>
-      {/** Skip link para accesibilidad */}
-    <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
+      <SkipLink />
 
-    {/** Indicador de estado de conexión */}
-    <div className="connection-status" id="connection-status" role="status" aria-live="polite">
-        <span id="connection-text">Estado de conexión: Desconocido</span>
-    </div>
+      <ConnectionStatus message={connectionMessage} />
 
-    <main id="main-content" className="main-container">
-        <h1 className="sr-only">ManchApp Lavadora - Gestión de Soluciones de Limpieza</h1>
+      <main id="main-content" className="main-container">
+        <h1 className="sr-only">
+          ManchApp Lavadora - Gestión de Soluciones de Limpieza
+        </h1>
 
-        {/** Contenedor principal de la lavadora */}
         <div className="washing-machine-container">
-            <div className="field-background">
-                <div className="grass-texture"></div>
-            </div>
+          <div className="field-background">
+            <div className="grass-texture"></div>
+          </div>
 
-            {/** Lavadora */}
-            <div className="washing-machine" role="application" aria-label="Interfaz de lavadora ManchApp">
-                {/** Panel de control superior */}
-                <div className="control-panel">
-                    <div className="lcd-screen" role="region" aria-label="Pantalla de estado">
-                        <div className="screen-content" id="screen-content">
-                            <div className="screen-text" id="screen-text">ManchApp 2025</div>
-                            <div className="screen-status" id="screen-status"></div>
-                        </div>
-                    </div>
-                    
-                    <div className="control-buttons">
-                        <button className="power-button" id="power-button" type="button" aria-describedby="power-help">
-                            <span className="power-icon"></span>
-                            <span className="sr-only">Botón de encendido - Verificar conexión</span>
-                        </button>
-                        <div id="power-help" className="sr-only">Presiona para verificar la conexión a la base de datos</div>
+          <div
+            className="washing-machine"
+            role="application"
+            aria-label="Interfaz de lavadora ManchApp"
+          >
+            <ControlPanel
+              screenText={screenDisplay.mainText}
+              screenStatus={screenDisplay.statusText}
+              onPowerClick={handlePowerButton}
+              leds={leds}
+            />
 
-                        <div className="indicator-lights">
-                            <div className="led power-led" id="power-led" role="img" aria-label="Indicador de encendido"></div>
-                            <div className="led connection-led" id="connection-led" role="img" aria-label="Indicador de conexión"></div>
-                            <div className="led washing-led" id="washing-led" role="img" aria-label="Indicador de lavado"></div>
-                        </div>
-                    </div>
-                </div>
+            <WashingDoor isSpinning={leds.washing} />
 
-                {/** Puerta de la lavadora */}
-                <div className="washing-machine-door">
-                    <div className="door-frame">
-                        <div className="door-glass">
-                            <div className="door-seal"></div>
-                            <div className="drum-container">
-                                <div className="drum" id="drum" role="img" aria-label="Tambor de la lavadora">
-                                    <div className="drum-holes">
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                        <div className="hole"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="door-handle" role="button" aria-label="Manija de la puerta" tabIndex="0"></div>
-                    </div>
-                </div>
+            <LoginSection
+              isVisible={showLogin && !state.authenticated}
+              onSubmit={handleLogin}
+            />
 
-                {/** Formulario de login (inicialmente oculto) */}
-                <div className="login-section hidden" id="login-section" role="region" aria-labelledby="login-title">
-                    <h2 id="login-title" className="section-title">Iniciar Sesión</h2>
-                    <form className="login-form" id="login-form" novalidate>
-                        <div className="form-group">
-                            <label htmlFor="username" className="form-label">Usuario</label>
-                            <input type="text" id="username" name="username" className="form-control" required aria-describedby="username-error" />
-                            <div id="username-error" className="error-message" role="alert"></div>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password" className="form-label">Contraseña</label>
-                            <input type="password" id="password" name="password" className="form-control" required aria-describedby="password-error" />
-                            <div id="password-error" className="error-message" role="alert"></div>
-                        </div>
-                        <button type="submit" className="btn btn--primary btn--full-width">Ingresar</button>
-                    </form>
-                </div>
+            <SearchForm
+              isVisible={showSearchForm && state.authenticated}
+              onSearch={handleSearch}
+              isLoading={isLoading}
+              supabaseService={supabaseService}
+            />
 
-                {/** Panel de gestión de soluciones (inicialmente oculto) */}
-                <div className="solutions-section hidden" id="solutions-section" role="region" aria-labelledby="solutions-title">
-                    <h2 id="solutions-title" className="section-title">Soluciones de Limpieza</h2>
-
-                    {/** Barra de acciones */}
-                    <div className="solutions-actions">
-                        <button className="btn btn--primary" id="add-solution-btn" type="button">
-                            <span aria-hidden="true">+</span> Agregar Solución
-                        </button>
-                        <button className="btn btn--secondary" id="logout-btn" type="button">Cerrar Sesión</button>
-                    </div>
-
-                    {/** Lista de soluciones */}
-                    <div className="solutions-list" id="solutions-list" role="list" aria-label="Lista de soluciones de limpieza">
-                    </div>
-                </div>
-
-                {/** Formulario de solución (modal) */}
-                <div className="modal hidden" id="solution-modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3 id="modal-title">Agregar Solución</h3>
-                            <button className="modal-close" id="modal-close" type="button" aria-label="Cerrar modal">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                        </div>
-                        <form className="solution-form" id="solution-form" novalidate>
-                            <div className="form-group">
-                                <label htmlFor="solution-title" className="form-label">Título</label>
-                                <input type="text" id="solution-title" name="title" className="form-control" required />
-                                <div id="title-error" className="error-message" role="alert"></div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="solution-instructions" className="form-label">Instrucciones</label>
-                                <textarea id="solution-instructions" name="instructions" className="form-control" rows="4" required></textarea>
-                                <div id="instructions-error" className="error-message" role="alert"></div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="solution-difficulty" className="form-label">Dificultad</label>
-                                <select id="solution-difficulty" name="difficulty" className="form-control" required>
-                                    <option value="">Seleccionar dificultad</option>
-                                    <option value="LOW">Baja</option>
-                                    <option value="MEDIUM">Media</option>
-                                    <option value="HIGH">Alta</option>
-                                    <option value="EXTREME">Extrema</option>
-                                </select>
-                                <div id="difficulty-error" class="error-message" role="alert"></div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="solution-time" className="form-label">Tiempo (minutos)</label>
-                                <input type="number" id="solution-time" name="time_minutes" className="form-control" min="1" max="240" required />
-                                <div id="time-error" className="error-message" role="alert"></div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="solution-tips" className="form-label">Consejos (opcional)</label>
-                                <textarea id="solution-tips" name="tips" className="form-control" rows="2"></textarea>
-                            </div>
-                            <div className="modal-actions">
-                                <button type="submit" className="btn btn--primary">Guardar</button>
-                                <button type="button" className="btn btn--outline" id="cancel-solution">Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            <SolutionsSection
+              isVisible={showSolutions && state.authenticated}
+              solutions={searchResults.length > 0 ? searchResults : solutions}
+              onAdd={handleAddSolution}
+              onEdit={handleEditSolution}
+              onDelete={handleDeleteSolution}
+              onLogout={handleLogout}
+              onBackToSearch={
+                !showSearchForm && state.authenticated
+                  ? handleBackToSearch
+                  : null
+              }
+            />
+          </div>
         </div>
+      </main>
 
-        {/* Modal de confirmación */}
-        <div className="modal hidden" id="confirm-modal" role="dialog" aria-labelledby="confirm-title" aria-modal="true">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h3 id="confirm-title">Confirmar Acción</h3>
-                </div>
-                <div className="modal-body">
-                    <p id="confirm-message">¿Estás seguro de que deseas realizar esta acción?</p>
-                </div>
-                <div className="modal-actions">
-                    <button className="btn btn--primary" id="confirm-yes">Confirmar</button>
-                    <button className="btn btn--outline" id="confirm-no">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </main>
+      {/* Modal de solución */}
+      <Modal
+        isVisible={showSolutionModal}
+        title={
+          state.currentEditingSolution ? "Editar Solución" : "Agregar Solución"
+        }
+        onClose={handleCancelSolution}
+      >
+        <SolutionForm
+          onSubmit={handleSolutionSubmit}
+          onCancel={handleCancelSolution}
+          initialData={state.currentEditingSolution}
+        />
+      </Modal>
 
-    {/* Loading overlay */}
-    <div className="loading-overlay hidden" id="loading-overlay" role="status" aria-label="Cargando">
-        <div className="loading-spinner"></div>
-        <div className="loading-text">Procesando...</div>
-    </div>
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        isVisible={showConfirmModal}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={handleCancelConfirm}
+      />
+
+      <LoadingOverlay isVisible={isLoading} message={loadingMessage} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
