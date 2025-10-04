@@ -32,7 +32,7 @@ const SolutionItem = ({
 
         {solutionData.tips && (
           <p className="solution-tips">
-            <strong>Consejo:</strong> {solutionData.tips}
+            <strong>Consejos:</strong> {solutionData.tips}
           </p>
         )}
 

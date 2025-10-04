@@ -31,41 +31,64 @@ const SolutionsSection = ({
     if (filters.dificultad) {
       filtered = filtered.filter(
         (solution) =>
-          solution.dificultad?.toLowerCase() ===
-          filters.dificultad.toLowerCase()
+          solution.dificultad?.toLowerCase() === filters.dificultad.toLowerCase()
       );
     }
 
     // Filtrar por tiempo máximo
-    if (filters.tiempoMax) {
-      const maxTime = parseInt(filters.tiempoMax);
+    if (filters.tiempoMaximo) {
+      const maxTime = parseInt(filters.tiempoMaximo);
       filtered = filtered.filter((solution) => {
-        const solutionTime = parseInt(solution.tiempo_estimado) || 0;
+        const solutionTime = parseInt(solution.tiempo_minutos) || 0;
         return solutionTime <= maxTime;
       });
     }
 
-    // Filtrar por ingredientes (si contiene alguno de los seleccionados)
+    // Filtrar por categoría
+    if (filters.categoria) {
+      const categoryValue = parseInt(filters.categoria);
+      filtered = filtered.filter((solution) => {
+        return parseInt(solution.categoria) === categoryValue;
+      });
+    }
+
+    // Filtrar por efectividad mínima
+    if (filters.efectividad) {
+      const minEffectiveness = parseInt(filters.efectividad);
+      filtered = filtered.filter((solution) => {
+        const solutionEffectiveness = parseInt(solution.efectividad) || 0;
+        return solutionEffectiveness >= minEffectiveness;
+      });
+    }
+
+    // Filtrar por ingredientes (usando relaciones reales)
     if (filters.ingredientes.length > 0) {
       filtered = filtered.filter((solution) => {
-        const solutionIngredients = solution.instrucciones?.toLowerCase() || "";
-        return filters.ingredientes.some((ingredient) =>
-          solutionIngredients.includes(ingredient.toLowerCase())
+        if (!solution.soluciones_limpieza_ingredientes) return false;
+        
+        return filters.ingredientes.some((ingredientId) =>
+          solution.soluciones_limpieza_ingredientes.some(
+            (rel) => rel.ingredientes?.id === ingredientId
+          )
         );
       });
     }
 
-    // Filtrar por utensilios (si contiene alguno de los seleccionados)
+    // Filtrar por utensilios (usando relaciones reales)
     if (filters.utensilios.length > 0) {
       filtered = filtered.filter((solution) => {
-        const solutionInstructions =
-          solution.instrucciones?.toLowerCase() || "";
-        return filters.utensilios.some((utensilio) =>
-          solutionInstructions.includes(utensilio.toLowerCase())
+        if (!solution.soluciones_limpieza_utensilios) return false;
+        
+        return filters.utensilios.some((utensilioId) =>
+          solution.soluciones_limpieza_utensilios.some(
+            (rel) => rel.utensilios?.id === utensilioId
+          )
         );
       });
     }
 
+    console.log("🔍 Filtros aplicados:", filters);
+    console.log("📊 Soluciones filtradas:", filtered.length, "de", solutions.length);
     setFilteredSolutions(filtered);
   };
 

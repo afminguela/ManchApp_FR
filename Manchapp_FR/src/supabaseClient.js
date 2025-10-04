@@ -33,7 +33,41 @@ export const supabaseService = {
 
       const { data, error } = await supabase
         .from("soluciones_limpieza")
-        .select("*")
+        .select(`
+          *,
+          soluciones_limpieza_ingredientes (
+            ingredientes (
+              id,
+              tipo_ingrediente,
+              propiedades,
+              sustancias (
+                id,
+                nombre,
+                descripcion
+              )
+            )
+          ),
+          soluciones_limpieza_utensilios (
+            utensilios (
+              id,
+              nombre,
+              descripcion
+            )
+          ),
+          solucion_precauciones (
+            precauciones (
+              id,
+              descripcion
+            )
+          ),
+          solucion_material (
+            materiales (
+              id,
+              nombre,
+              descripcion
+            )
+          )
+        `)
         .order("id", { ascending: false });
 
       if (error) {
@@ -42,6 +76,7 @@ export const supabaseService = {
       }
 
       console.log("✅ Soluciones obtenidas:", data?.length || 0);
+      console.log("🔗 Primera solución con relaciones:", data?.[0]);
       return { data, error };
     } catch (error) {
       console.error("💥 Error en getSolutions:", error);
@@ -507,6 +542,72 @@ export const supabaseService = {
       await supabase
         .from("solucion_precauciones")
         .insert(precaucionesRelations);
+    }
+  },
+
+  // Funciones para obtener catálogos de ingredientes y utensilios
+  async getIngredientes() {
+    try {
+      console.log("🔍 Obteniendo ingredientes desde Supabase...");
+
+      const { data, error } = await supabase
+        .from("ingredientes")
+        .select(
+          `
+          id,
+          disponible_supermercado,
+          propiedades,
+          tipo_ingrediente,
+          sustancia_id,
+          sustancias (
+            id,
+            nombre,
+            descripcion
+          )
+        `
+        )
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("❌ Error obteniendo ingredientes:", error);
+        throw error;
+      }
+
+      // Transformar datos para incluir nombre de la sustancia
+      const ingredientesConNombres =
+        data?.map((ingrediente) => ({
+          ...ingrediente,
+          nombre:
+            ingrediente.sustancias?.nombre || `Ingrediente ${ingrediente.id}`,
+        })) || [];
+
+      console.log("✅ Ingredientes obtenidos:", ingredientesConNombres.length);
+      return ingredientesConNombres;
+    } catch (error) {
+      console.error("💥 Error en getIngredientes:", error);
+      return [];
+    }
+  },
+
+  async getUtensilios() {
+    try {
+      console.log("🔍 Obteniendo utensilios desde Supabase...");
+
+      const { data, error } = await supabase
+        .from("utensilios")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("❌ Error obteniendo utensilios:", error);
+        throw error;
+      }
+
+      console.log("✅ Utensilios obtenidos:", data?.length || 0);
+      return data || [];
+    } catch (error) {
+      console.error("💥 Error en getUtensilios:", error);
+      return [];
     }
   },
 };

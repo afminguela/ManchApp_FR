@@ -1,22 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../ui/Button";
+import { supabaseService } from "../../supabaseClient";
 
-const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => {
+const FilterPanel = ({
+  onFiltersChange,
+  onClearFilters,
+  isVisible = false,
+}) => {
   const [filters, setFilters] = useState({
     dificultad: "",
     tiempoMaximo: "",
     categoria: "",
     efectividad: "",
     ingredientes: [],
-    utensilios: []
+    utensilios: [],
   });
 
-  // Opciones basadas en el esquema de BD
+  const [availableIngredients, setAvailableIngredients] = useState([]);
+  const [availableUtensilios, setAvailableUtensilios] = useState([]);
+
+  // Cargar ingredientes y utensilios reales de la BD
+  useEffect(() => {
+    const loadCatalogData = async () => {
+      try {
+        const [ingredientes, utensilios] = await Promise.all([
+          supabaseService.getIngredientes(),
+          supabaseService.getUtensilios(),
+        ]);
+
+        setAvailableIngredients(ingredientes || []);
+        setAvailableUtensilios(utensilios || []);
+      } catch (error) {
+        console.error("Error cargando datos del catálogo:", error);
+      }
+    };
+
+    if (isVisible) {
+      loadCatalogData();
+    }
+  }, [isVisible]);
+
+  // Opciones basadas en el esquema real de BD
   const dificultades = [
     { value: "", label: "Todas las dificultades" },
     { value: "baja", label: "Baja" },
     { value: "media", label: "Media" },
-    { value: "alta", label: "Alta" }
+    { value: "alta", label: "Alta" },
   ];
 
   const tiemposEstimados = [
@@ -25,59 +54,25 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
     { value: "15", label: "Hasta 15 min" },
     { value: "30", label: "Hasta 30 min" },
     { value: "60", label: "Hasta 1 hora" },
-    { value: "120", label: "Hasta 2 horas" }
+    { value: "120", label: "Hasta 2 horas" },
   ];
 
-  // Categorías de soluciones según schema
+  // Categorías según el esquema real (smallint)
   const categorias = [
     { value: "", label: "Todas las categorías" },
-    { value: "1", label: "Doméstico" },
-    { value: "2", label: "Profesional" },
-    { value: "3", label: "Industrial" }
+    { value: "1", label: "Categoría 1" },
+    { value: "2", label: "Categoría 2" },
+    { value: "3", label: "Categoría 3" },
   ];
 
-  // Niveles de efectividad
+  // Niveles de efectividad según el esquema real (smallint)
   const efectividades = [
     { value: "", label: "Cualquier efectividad" },
-    { value: "1", label: "Baja efectividad" },
-    { value: "2", label: "Media efectividad" },
-    { value: "3", label: "Alta efectividad" },
-    { value: "4", label: "Muy alta efectividad" },
-    { value: "5", label: "Máxima efectividad" }
-  ];
-
-  // Lista ampliada de ingredientes comunes
-  const ingredientesComunes = [
-    "Bicarbonato de sodio",
-    "Vinagre blanco",
-    "Limón",
-    "Sal",
-    "Agua oxigenada",
-    "Jabón neutro",
-    "Alcohol isopropílico",
-    "Detergente",
-    "Amoníaco",
-    "Agua caliente",
-    "Aceite de oliva",
-    "Pasta de dientes",
-    "Coca-Cola"
-  ];
-
-  // Lista ampliada de utensilios
-  const utensiliosComunes = [
-    "Esponja suave",
-    "Esponja abrasiva",
-    "Paño de microfibra",
-    "Cepillo de dientes",
-    "Cepillo de cerdas duras",
-    "Brocha",
-    "Pulverizador",
-    "Recipiente",
-    "Guantes de goma",
-    "Aspiradora",
-    "Secador de pelo",
-    "Espátula",
-    "Rasqueta"
+    { value: "1", label: "Efectividad 1" },
+    { value: "2", label: "Efectividad 2" },
+    { value: "3", label: "Efectividad 3" },
+    { value: "4", label: "Efectividad 4" },
+    { value: "5", label: "Efectividad 5" },
   ];
 
   const handleFilterChange = (filterType, value) => {
@@ -90,8 +85,8 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
     const currentValues = filters[filterType];
     const newValues = checked
       ? [...currentValues, value]
-      : currentValues.filter(item => item !== value);
-    
+      : currentValues.filter((item) => item !== value);
+
     const newFilters = { ...filters, [filterType]: newValues };
     setFilters(newFilters);
     onFiltersChange(newFilters);
@@ -104,29 +99,35 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
       categoria: "",
       efectividad: "",
       ingredientes: [],
-      utensilios: []
+      utensilios: [],
     };
     setFilters(emptyFilters);
     onClearFilters();
   };
 
   const hasActiveFilters = () => {
-    return filters.dificultad || 
-           filters.tiempoMaximo || 
-           filters.categoria ||
-           filters.efectividad ||
-           filters.ingredientes.length > 0 || 
-           filters.utensilios.length > 0;
+    return (
+      filters.dificultad ||
+      filters.tiempoMaximo ||
+      filters.categoria ||
+      filters.efectividad ||
+      filters.ingredientes.length > 0 ||
+      filters.utensilios.length > 0
+    );
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="filter-panel">
+    <div className="filter-panel" id="filter-panel">
       <div className="filter-header">
         <h3>Filtrar Soluciones</h3>
         {hasActiveFilters() && (
-          <Button variant="secondary" onClick={clearAllFilters} className="clear-filters-btn">
+          <Button
+            variant="secondary"
+            onClick={clearAllFilters}
+            className="clear-filters-btn"
+          >
             Limpiar Filtros
           </Button>
         )}
@@ -142,7 +143,7 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
             onChange={(e) => handleFilterChange("dificultad", e.target.value)}
             className="filter-select"
           >
-            {dificultades.map(diff => (
+            {dificultades.map((diff) => (
               <option key={diff.value} value={diff.value}>
                 {diff.label}
               </option>
@@ -159,7 +160,7 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
             onChange={(e) => handleFilterChange("tiempoMaximo", e.target.value)}
             className="filter-select"
           >
-            {tiemposEstimados.map(tiempo => (
+            {tiemposEstimados.map((tiempo) => (
               <option key={tiempo.value} value={tiempo.value}>
                 {tiempo.label}
               </option>
@@ -176,7 +177,7 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
             onChange={(e) => handleFilterChange("categoria", e.target.value)}
             className="filter-select"
           >
-            {categorias.map(cat => (
+            {categorias.map((cat) => (
               <option key={cat.value} value={cat.value}>
                 {cat.label}
               </option>
@@ -193,7 +194,7 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
             onChange={(e) => handleFilterChange("efectividad", e.target.value)}
             className="filter-select"
           >
-            {efectividades.map(efect => (
+            {efectividades.map((efect) => (
               <option key={efect.value} value={efect.value}>
                 {efect.label}
               </option>
@@ -205,14 +206,22 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
         <div className="filter-group filter-multi">
           <label>Ingredientes disponibles</label>
           <div className="multi-select-grid">
-            {ingredientesComunes.map(ingrediente => (
-              <label key={ingrediente} className="checkbox-item">
+            {availableIngredients.map((ingrediente) => (
+              <label key={ingrediente.id} className="checkbox-item">
                 <input
                   type="checkbox"
-                  checked={filters.ingredientes.includes(ingrediente)}
-                  onChange={(e) => handleMultiSelectChange("ingredientes", ingrediente, e.target.checked)}
+                  checked={filters.ingredientes.includes(ingrediente.id)}
+                  onChange={(e) =>
+                    handleMultiSelectChange(
+                      "ingredientes",
+                      ingrediente.id,
+                      e.target.checked
+                    )
+                  }
                 />
-                <span>{ingrediente}</span>
+                <span>
+                  {ingrediente.nombre || `Ingrediente ${ingrediente.id}`}
+                </span>
               </label>
             ))}
           </div>
@@ -222,14 +231,24 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
         <div className="filter-group filter-multi">
           <label>Utensilios disponibles</label>
           <div className="multi-select-grid">
-            {utensiliosComunes.map(utensilio => (
-              <label key={utensilio} className="checkbox-item">
+            {availableUtensilios.map((utensilio) => (
+              <label key={utensilio.id} className="checkbox-item">
                 <input
                   type="checkbox"
-                  checked={filters.utensilios.includes(utensilio)}
-                  onChange={(e) => handleMultiSelectChange("utensilios", utensilio, e.target.checked)}
+                  checked={filters.utensilios.includes(utensilio.id)}
+                  onChange={(e) =>
+                    handleMultiSelectChange(
+                      "utensilios",
+                      utensilio.id,
+                      e.target.checked
+                    )
+                  }
                 />
-                <span>{utensilio}</span>
+                <span>
+                  {utensilio.nombre ||
+                    utensilio.descripcion ||
+                    `Utensilio ${utensilio.id}`}
+                </span>
               </label>
             ))}
           </div>
@@ -243,30 +262,60 @@ const FilterPanel = ({ onFiltersChange, onClearFilters, isVisible = false }) => 
           <div className="filter-tags">
             {filters.dificultad && (
               <span className="filter-tag">
-                Dificultad: {dificultades.find(d => d.value === filters.dificultad)?.label}
+                Dificultad:{" "}
+                {
+                  dificultades.find((d) => d.value === filters.dificultad)
+                    ?.label
+                }
               </span>
             )}
             {filters.tiempoMaximo && (
               <span className="filter-tag">
-                Tiempo: {tiemposEstimados.find(t => t.value === filters.tiempoMaximo)?.label}
+                Tiempo:{" "}
+                {
+                  tiemposEstimados.find((t) => t.value === filters.tiempoMaximo)
+                    ?.label
+                }
               </span>
             )}
             {filters.categoria && (
               <span className="filter-tag">
-                Categoría: {categorias.find(c => c.value === filters.categoria)?.label}
+                Categoría:{" "}
+                {categorias.find((c) => c.value === filters.categoria)?.label}
               </span>
             )}
             {filters.efectividad && (
               <span className="filter-tag">
-                Efectividad: {efectividades.find(e => e.value === filters.efectividad)?.label}
+                Efectividad:{" "}
+                {
+                  efectividades.find((e) => e.value === filters.efectividad)
+                    ?.label
+                }
               </span>
             )}
-            {filters.ingredientes.map(ing => (
-              <span key={ing} className="filter-tag">Ingrediente: {ing}</span>
-            ))}
-            {filters.utensilios.map(uten => (
-              <span key={uten} className="filter-tag">Utensilio: {uten}</span>
-            ))}
+            {filters.ingredientes.map((ingId) => {
+              const ingrediente = availableIngredients.find(
+                (ing) => ing.id === ingId
+              );
+              return (
+                <span key={ingId} className="filter-tag">
+                  Ingrediente: {ingrediente?.nombre || `ID: ${ingId}`}
+                </span>
+              );
+            })}
+            {filters.utensilios.map((utenId) => {
+              const utensilio = availableUtensilios.find(
+                (uten) => uten.id === utenId
+              );
+              return (
+                <span key={utenId} className="filter-tag">
+                  Utensilio:{" "}
+                  {utensilio?.nombre ||
+                    utensilio?.descripcion ||
+                    `ID: ${utenId}`}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}
