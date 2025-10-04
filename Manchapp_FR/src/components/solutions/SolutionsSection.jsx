@@ -29,15 +29,17 @@ const SolutionsSection = ({
 
     // Filtrar por dificultad
     if (filters.dificultad) {
-      filtered = filtered.filter(solution => 
-        solution.dificultad?.toLowerCase() === filters.dificultad.toLowerCase()
+      filtered = filtered.filter(
+        (solution) =>
+          solution.dificultad?.toLowerCase() ===
+          filters.dificultad.toLowerCase()
       );
     }
 
     // Filtrar por tiempo máximo
     if (filters.tiempoMax) {
       const maxTime = parseInt(filters.tiempoMax);
-      filtered = filtered.filter(solution => {
+      filtered = filtered.filter((solution) => {
         const solutionTime = parseInt(solution.tiempo_estimado) || 0;
         return solutionTime <= maxTime;
       });
@@ -45,9 +47,9 @@ const SolutionsSection = ({
 
     // Filtrar por ingredientes (si contiene alguno de los seleccionados)
     if (filters.ingredientes.length > 0) {
-      filtered = filtered.filter(solution => {
+      filtered = filtered.filter((solution) => {
         const solutionIngredients = solution.instrucciones?.toLowerCase() || "";
-        return filters.ingredientes.some(ingredient => 
+        return filters.ingredientes.some((ingredient) =>
           solutionIngredients.includes(ingredient.toLowerCase())
         );
       });
@@ -55,9 +57,10 @@ const SolutionsSection = ({
 
     // Filtrar por utensilios (si contiene alguno de los seleccionados)
     if (filters.utensilios.length > 0) {
-      filtered = filtered.filter(solution => {
-        const solutionInstructions = solution.instrucciones?.toLowerCase() || "";
-        return filters.utensilios.some(utensilio => 
+      filtered = filtered.filter((solution) => {
+        const solutionInstructions =
+          solution.instrucciones?.toLowerCase() || "";
+        return filters.utensilios.some((utensilio) =>
           solutionInstructions.includes(utensilio.toLowerCase())
         );
       });

@@ -14,7 +14,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     ingredientes: [],
     utensilios: [],
     materiales: [],
-    precauciones: []
+    precauciones: [],
   });
   const [errors, setErrors] = useState({});
 
@@ -31,7 +31,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
         ingredientes: initialData.ingredientes || [],
         utensilios: initialData.utensilios || [],
         materiales: initialData.materiales || [],
-        precauciones: initialData.precauciones || []
+        precauciones: initialData.precauciones || [],
       });
     }
   }, [initialData]);
@@ -53,9 +53,9 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
   };
 
   const handleMultiSelectChange = (field, values) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: values
+      [field]: values,
     }));
   };
 
@@ -102,7 +102,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
         ...formData,
         tiempo_minutos: parseInt(formData.tiempo_minutos),
         categoria_id: parseInt(formData.categoria_id),
-        efectividad: parseInt(formData.efectividad)
+        efectividad: parseInt(formData.efectividad),
       };
       onSubmit(solutionData);
     }
@@ -113,14 +113,14 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     { value: "", label: "Seleccionar dificultad" },
     { value: "baja", label: "Baja" },
     { value: "media", label: "Media" },
-    { value: "alta", label: "Alta" }
+    { value: "alta", label: "Alta" },
   ];
 
   const categoriaOptions = [
     { value: "", label: "Seleccionar categoría" },
     { value: "1", label: "Doméstico" },
     { value: "2", label: "Profesional" },
-    { value: "3", label: "Industrial" }
+    { value: "3", label: "Industrial" },
   ];
 
   const efectividadOptions = [
@@ -129,29 +129,55 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     { value: "2", label: "Media (2)" },
     { value: "3", label: "Alta (3)" },
     { value: "4", label: "Muy alta (4)" },
-    { value: "5", label: "Máxima (5)" }
+    { value: "5", label: "Máxima (5)" },
   ];
 
   // Listas de opciones para multi-select
   const ingredientesOptions = [
-    "Bicarbonato de sodio", "Vinagre blanco", "Limón", "Sal", "Agua oxigenada",
-    "Jabón neutro", "Alcohol isopropílico", "Detergente", "Amoníaco", "Agua caliente"
+    "Bicarbonato de sodio",
+    "Vinagre blanco",
+    "Limón",
+    "Sal",
+    "Agua oxigenada",
+    "Jabón neutro",
+    "Alcohol isopropílico",
+    "Detergente",
+    "Amoníaco",
+    "Agua caliente",
   ];
 
   const utensiliosOptions = [
-    "Esponja suave", "Esponja abrasiva", "Paño de microfibra", "Cepillo de dientes",
-    "Cepillo de cerdas duras", "Brocha", "Pulverizador", "Recipiente", "Guantes"
+    "Esponja suave",
+    "Esponja abrasiva",
+    "Paño de microfibra",
+    "Cepillo de dientes",
+    "Cepillo de cerdas duras",
+    "Brocha",
+    "Pulverizador",
+    "Recipiente",
+    "Guantes",
   ];
 
   const materialesOptions = [
-    "Algodón", "Papel absorbente", "Trapo viejo", "Toalla", "Bolsa de plástico",
-    "Cinta adhesiva", "Papel aluminio", "Film transparente"
+    "Algodón",
+    "Papel absorbente",
+    "Trapo viejo",
+    "Toalla",
+    "Bolsa de plástico",
+    "Cinta adhesiva",
+    "Papel aluminio",
+    "Film transparente",
   ];
 
   const precaucionesOptions = [
-    "Usar guantes", "Ventilar la zona", "No mezclar productos químicos",
-    "Mantener alejado de niños", "Probar en zona pequeña primero",
-    "Usar mascarilla", "Evitar contacto con ojos", "Lavar manos después"
+    "Usar guantes",
+    "Ventilar la zona",
+    "No mezclar productos químicos",
+    "Mantener alejado de niños",
+    "Probar en zona pequeña primero",
+    "Usar mascarilla",
+    "Evitar contacto con ojos",
+    "Lavar manos después",
   ];
 
   return (
@@ -246,7 +272,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
       <div className="multi-select-section">
         <h4>Ingredientes necesarios</h4>
         <div className="checkbox-grid">
-          {ingredientesOptions.map(ingrediente => (
+          {ingredientesOptions.map((ingrediente) => (
             <label key={ingrediente} className="checkbox-item">
               <input
                 type="checkbox"
@@ -254,8 +280,8 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
                 onChange={(e) => {
                   const newIngredientes = e.target.checked
                     ? [...formData.ingredientes, ingrediente]
-                    : formData.ingredientes.filter(i => i !== ingrediente);
-                  handleMultiSelectChange('ingredientes', newIngredientes);
+                    : formData.ingredientes.filter((i) => i !== ingrediente);
+                  handleMultiSelectChange("ingredientes", newIngredientes);
                 }}
               />
               <span>{ingrediente}</span>
@@ -267,7 +293,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
       <div className="multi-select-section">
         <h4>Utensilios necesarios</h4>
         <div className="checkbox-grid">
-          {utensiliosOptions.map(utensilio => (
+          {utensiliosOptions.map((utensilio) => (
             <label key={utensilio} className="checkbox-item">
               <input
                 type="checkbox"
@@ -275,8 +301,8 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
                 onChange={(e) => {
                   const newUtensilios = e.target.checked
                     ? [...formData.utensilios, utensilio]
-                    : formData.utensilios.filter(u => u !== utensilio);
-                  handleMultiSelectChange('utensilios', newUtensilios);
+                    : formData.utensilios.filter((u) => u !== utensilio);
+                  handleMultiSelectChange("utensilios", newUtensilios);
                 }}
               />
               <span>{utensilio}</span>
@@ -288,7 +314,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
       <div className="multi-select-section">
         <h4>Materiales adicionales</h4>
         <div className="checkbox-grid">
-          {materialesOptions.map(material => (
+          {materialesOptions.map((material) => (
             <label key={material} className="checkbox-item">
               <input
                 type="checkbox"
@@ -296,8 +322,8 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
                 onChange={(e) => {
                   const newMateriales = e.target.checked
                     ? [...formData.materiales, material]
-                    : formData.materiales.filter(m => m !== material);
-                  handleMultiSelectChange('materiales', newMateriales);
+                    : formData.materiales.filter((m) => m !== material);
+                  handleMultiSelectChange("materiales", newMateriales);
                 }}
               />
               <span>{material}</span>
@@ -309,7 +335,7 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
       <div className="multi-select-section">
         <h4>Precauciones importantes</h4>
         <div className="checkbox-grid">
-          {precaucionesOptions.map(precaucion => (
+          {precaucionesOptions.map((precaucion) => (
             <label key={precaucion} className="checkbox-item">
               <input
                 type="checkbox"
@@ -317,8 +343,8 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
                 onChange={(e) => {
                   const newPrecauciones = e.target.checked
                     ? [...formData.precauciones, precaucion]
-                    : formData.precauciones.filter(p => p !== precaucion);
-                  handleMultiSelectChange('precauciones', newPrecauciones);
+                    : formData.precauciones.filter((p) => p !== precaucion);
+                  handleMultiSelectChange("precauciones", newPrecauciones);
                 }}
               />
               <span>{precaucion}</span>
