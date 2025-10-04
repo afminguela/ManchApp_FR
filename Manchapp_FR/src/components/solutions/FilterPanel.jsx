@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "../ui/Button";
 import { supabaseService } from "../../supabaseClient";
 
@@ -6,7 +6,10 @@ const FilterPanel = ({
   onFiltersChange,
   onClearFilters,
   isVisible = false,
+  onClose,
+  activeFilters,
 }) => {
+  const panelRef = useRef(null);
   const [filters, setFilters] = useState({
     dificultad: "",
     tiempoMaximo: "",
@@ -15,6 +18,13 @@ const FilterPanel = ({
     ingredientes: [],
     utensilios: [],
   });
+
+  // Sincronizar filtros locales con filtros activos
+  useEffect(() => {
+    if (activeFilters) {
+      setFilters(activeFilters);
+    }
+  }, [activeFilters]);
 
   const [availableIngredients, setAvailableIngredients] = useState([]);
   const [availableUtensilios, setAvailableUtensilios] = useState([]);
@@ -40,12 +50,32 @@ const FilterPanel = ({
     }
   }, [isVisible]);
 
-  // Opciones basadas en el esquema real de BD
+  // Cerrar panel al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target) &&
+        isVisible
+      ) {
+        onClose && onClose();
+      }
+    };
+
+    if (isVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isVisible, onClose]);
+
+  // Opciones basadas en el esquema real de BD (enum en inglés)
   const dificultades = [
     { value: "", label: "Todas las dificultades" },
-    { value: "baja", label: "Baja" },
-    { value: "media", label: "Media" },
-    { value: "alta", label: "Alta" },
+    { value: "easy", label: "Fácil" },
+    { value: "medium", label: "Media" },
+    { value: "hard", label: "Difícil" },
   ];
 
   const tiemposEstimados = [
@@ -119,7 +149,7 @@ const FilterPanel = ({
   if (!isVisible) return null;
 
   return (
-    <div className="filter-panel" id="filter-panel">
+    <div className="filter-panel" id="filter-panel" ref={panelRef}>
       <div className="filter-header">
         <h3>Filtrar Soluciones</h3>
         {hasActiveFilters() && (
