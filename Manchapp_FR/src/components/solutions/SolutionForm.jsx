@@ -22,10 +22,13 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     if (initialData) {
       setFormData({
         titulo: initialData.titulo || "",
-        descripcion: initialData.descripcion || "",
+        descripcion: initialData.descripcion || initialData.instrucciones || "",
         tiempo_minutos: initialData.tiempo_minutos?.toString() || "",
-        dificultad: initialData.dificultad || "",
-        categoria_id: initialData.categoria_id?.toString() || "",
+        dificultad: mapDificultadFromDB(initialData.dificultad) || "",
+        categoria_id:
+          initialData.categoria?.toString() ||
+          initialData.categoria_id?.toString() ||
+          "",
         efectividad: initialData.efectividad?.toString() || "",
         consejos: initialData.consejos || "",
         ingredientes: initialData.ingredientes || [],
@@ -94,16 +97,55 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Mapeo de dificultad del formulario a la BD
+  const mapDificultad = (valor) => {
+    const mapping = {
+      baja: "LOW",
+      media: "MEDIUM",
+      alta: "HIGH",
+    };
+    return mapping[valor] || valor;
+  };
+
+  // Mapeo de dificultad de la BD al formulario
+  const mapDificultadFromDB = (valor) => {
+    const mapping = {
+      LOW: "baja",
+      MEDIUM: "media",
+      HIGH: "alta",
+    };
+    return mapping[valor] || valor;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (validateForm()) {
+      // Crear objeto con solo los campos necesarios para evitar campos no deseados
       const solutionData = {
-        ...formData,
+        titulo: formData.titulo,
+        instrucciones: formData.descripcion, // Mapear descripcion a instrucciones
         tiempo_minutos: parseInt(formData.tiempo_minutos),
-        categoria_id: parseInt(formData.categoria_id),
+        dificultad: mapDificultad(formData.dificultad), // Mapear a valores de BD
+        categoria: parseInt(formData.categoria_id), // Usar categoria en lugar de caregoria_id
         efectividad: parseInt(formData.efectividad),
+        consejos: formData.consejos,
+        ingredientes: formData.ingredientes || [],
+        utensilios: formData.utensilios || [],
+        materiales: formData.materiales || [],
+        precauciones: formData.precauciones || [],
       };
+
+      // Solo agregar id si estamos editando
+      if (initialData && initialData.id) {
+        solutionData.id = initialData.id;
+        console.log("✏️ Editando solución con id:", initialData.id);
+      } else {
+        console.log("🆕 Creando nueva solución (sin id)");
+      }
+
+      console.log("📤 SolutionData final:", solutionData);
+
       onSubmit(solutionData);
     }
   };

@@ -120,52 +120,6 @@ const SolutionItem = ({
           Eliminar
         </Button>
       </div>
-
-      <style jsx>{`
-        .solution-details {
-          margin-top: 16px;
-          border-top: 1px solid #e2e8f0;
-          padding-top: 16px;
-        }
-
-        .detail-section {
-          margin-bottom: 16px;
-        }
-
-        .detail-section h4 {
-          margin: 0 0 8px 0;
-          color: #4a5568;
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-
-        .detail-section ul {
-          margin: 0;
-          padding-left: 16px;
-          list-style-type: disc;
-        }
-
-        .detail-section li {
-          margin-bottom: 4px;
-          color: #2d3748;
-          font-size: 0.85rem;
-          line-height: 1.4;
-        }
-
-        .detail-section li.warning {
-          color: #d69e2e;
-          font-weight: 500;
-        }
-
-        .effectiveness {
-          background: #f7fafc;
-          color: #2b6cb0;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 0.8rem;
-          font-weight: 500;
-        }
-      `}</style>
     </article>
   );
 };

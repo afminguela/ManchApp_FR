@@ -314,10 +314,18 @@ export const supabaseService = {
         utensilios,
         materiales,
         precauciones,
+        id, // Extraer id por separado
         ...solutionFields
       } = solutionData;
 
       // 1. Crear la solución principal
+      console.log("📤 Campos que se van a insertar:", solutionFields);
+      console.log("🔍 ID extraído (no se insertará):", id);
+
+      // Asegurar que no haya ID en solutionFields
+      delete solutionFields.id;
+      console.log("🧹 Después de eliminar id:", solutionFields);
+
       const { data: solution, error: solutionError } = await supabase
         .from("soluciones_limpieza")
         .insert([solutionFields])
@@ -327,22 +335,55 @@ export const supabaseService = {
       if (solutionError) throw solutionError;
 
       const solutionId = solution.id;
+      console.log("✅ Solución principal creada con ID:", solutionId);
 
-      // 2. Manejar relaciones
-      if (ingredientes && ingredientes.length > 0) {
-        await this.manageSolutionIngredientes(solutionId, ingredientes);
+      // 2. Manejar relaciones (con manejo de errores para no fallar toda la operación)
+      try {
+        if (ingredientes && ingredientes.length > 0) {
+          console.log("🔗 Procesando ingredientes...");
+          await this.manageSolutionIngredientes(solutionId, ingredientes);
+        }
+      } catch (error) {
+        console.warn(
+          "⚠️ Error manejando ingredientes (continuando):",
+          error.message
+        );
       }
 
-      if (utensilios && utensilios.length > 0) {
-        await this.manageSolutionUtensilios(solutionId, utensilios);
+      try {
+        if (utensilios && utensilios.length > 0) {
+          console.log("🔗 Procesando utensilios...");
+          await this.manageSolutionUtensilios(solutionId, utensilios);
+        }
+      } catch (error) {
+        console.warn(
+          "⚠️ Error manejando utensilios (continuando):",
+          error.message
+        );
       }
 
-      if (materiales && materiales.length > 0) {
-        await this.manageSolutionMateriales(solutionId, materiales);
+      try {
+        if (materiales && materiales.length > 0) {
+          console.log("🔗 Procesando materiales...");
+          await this.manageSolutionMateriales(solutionId, materiales);
+        }
+      } catch (error) {
+        console.warn(
+          "⚠️ Error manejando materiales (continuando):",
+          error.message
+        );
       }
 
-      if (precauciones && precauciones.length > 0) {
-        await this.manageSolutionPrecauciones(solutionId, precauciones);
+      try {
+        if (precauciones && precauciones.length > 0) {
+          console.log("🔗 Procesando precauciones...");
+          await this.manageSolutionPrecauciones(solutionId, precauciones);
+        }
+      } catch (error) {
+        console.warn(
+          "⚠️ Error manejando precauciones (continuando):",
+          error.message
+        );
       }
 
       console.log("✅ Solución creada con relaciones:", solutionId);
@@ -402,76 +443,142 @@ export const supabaseService = {
 
   // Funciones helper para manejar relaciones
   async manageSolutionIngredientes(solutionId, ingredientes) {
-    await supabase
-      .from("soluciones_limpieza_ingredientes")
-      .delete()
-      .eq("solucion_id", solutionId);
-
-    if (ingredientes.length > 0) {
-      const ingredientesRelations = await Promise.all(
-        ingredientes.map(async (nombreIngrediente) => {
-          let { data: ingrediente } = await supabase
-            .from("ingredientes")
-            .select("id")
-            .eq("nombre", nombreIngrediente)
-            .single();
-
-          if (!ingrediente) {
-            const { data: newIngrediente } = await supabase
-              .from("ingredientes")
-              .insert([{ nombre: nombreIngrediente }])
-              .select("id")
-              .single();
-            ingrediente = newIngrediente;
-          }
-
-          return {
-            solucion_id: solutionId,
-            ingrediente_id: ingrediente.id,
-          };
-        })
-      );
-
+    try {
       await supabase
         .from("soluciones_limpieza_ingredientes")
-        .insert(ingredientesRelations);
+        .delete()
+        .eq("solucion_id", solutionId);
+
+      if (ingredientes.length > 0) {
+        const ingredientesRelations = await Promise.all(
+          ingredientes.map(async (nombreIngrediente) => {
+            try {
+              let { data: ingrediente } = await supabase
+                .from("ingredientes")
+                .select("id")
+                .eq("nombre", nombreIngrediente)
+                .single();
+
+              if (!ingrediente) {
+                const { data: newIngrediente, error: insertError } =
+                  await supabase
+                    .from("ingredientes")
+                    .insert([{ nombre: nombreIngrediente }])
+                    .select("id")
+                    .single();
+
+                if (insertError) {
+                  console.warn(
+                    `⚠️ No se pudo crear ingrediente "${nombreIngrediente}":`,
+                    insertError.message
+                  );
+                  return null;
+                }
+                ingrediente = newIngrediente;
+              }
+
+              if (!ingrediente || !ingrediente.id) {
+                console.warn(
+                  `⚠️ Ingrediente "${nombreIngrediente}" no tiene ID válido`
+                );
+                return null;
+              }
+
+              return {
+                solucion_id: solutionId,
+                ingrediente_id: ingrediente.id,
+              };
+            } catch (error) {
+              console.warn(
+                `⚠️ Error procesando ingrediente "${nombreIngrediente}":`,
+                error.message
+              );
+              return null;
+            }
+          })
+        );
+
+        // Filtrar nulls y solo insertar relaciones válidas
+        const validRelations = ingredientesRelations.filter((r) => r !== null);
+
+        if (validRelations.length > 0) {
+          await supabase
+            .from("soluciones_limpieza_ingredientes")
+            .insert(validRelations);
+        }
+      }
+    } catch (error) {
+      console.error("⚠️ Error en manageSolutionIngredientes:", error.message);
+      // No lanzar el error para que la solución principal se guarde
     }
   },
 
   async manageSolutionUtensilios(solutionId, utensilios) {
-    await supabase
-      .from("soluciones_limpieza_utensilios")
-      .delete()
-      .eq("solucion_id", solutionId);
-
-    if (utensilios.length > 0) {
-      const utensiliosRelations = await Promise.all(
-        utensilios.map(async (nombreUtensilio) => {
-          let { data: utensilio } = await supabase
-            .from("utensilios")
-            .select("id")
-            .eq("nombre", nombreUtensilio)
-            .single();
-
-          if (!utensilio) {
-            const { data: newUtensilio } = await supabase
-              .from("utensilios")
-              .insert([{ nombre: nombreUtensilio }])
-              .select("id")
-              .single();
-            utensilio = newUtensilio;
-          }
-
-          return {
-            solucion_id: solutionId,
-            utensilio_id: utensilio.id,
-          };
-        })
-      );
-
+    try {
       await supabase
         .from("soluciones_limpieza_utensilios")
-        .insert(utensiliosRelations);
+        .delete()
+        .eq("solucion_id", solutionId);
+
+      if (utensilios.length > 0) {
+        const utensiliosRelations = await Promise.all(
+          utensilios.map(async (nombreUtensilio) => {
+            try {
+              let { data: utensilio } = await supabase
+                .from("utensilios")
+                .select("id")
+                .eq("nombre", nombreUtensilio)
+                .single();
+
+              if (!utensilio) {
+                const { data: newUtensilio, error: insertError } =
+                  await supabase
+                    .from("utensilios")
+                    .insert([{ nombre: nombreUtensilio }])
+                    .select("id")
+                    .single();
+
+                if (insertError) {
+                  console.warn(
+                    `⚠️ No se pudo crear utensilio "${nombreUtensilio}":`,
+                    insertError.message
+                  );
+                  return null;
+                }
+                utensilio = newUtensilio;
+              }
+
+              if (!utensilio || !utensilio.id) {
+                console.warn(
+                  `⚠️ Utensilio "${nombreUtensilio}" no tiene ID válido`
+                );
+                return null;
+              }
+
+              return {
+                solucion_id: solutionId,
+                utensilio_id: utensilio.id,
+              };
+            } catch (error) {
+              console.warn(
+                `⚠️ Error procesando utensilio "${nombreUtensilio}":`,
+                error.message
+              );
+              return null;
+            }
+          })
+        );
+
+        const validRelations = utensiliosRelations.filter((r) => r !== null);
+
+        if (validRelations.length > 0) {
+          await supabase
+            .from("soluciones_limpieza_utensilios")
+            .insert(validRelations);
+        }
+      }
+    } catch (error) {
+      console.error("⚠️ Error en manageSolutionUtensilios:", error.message);
     }
   },
 
