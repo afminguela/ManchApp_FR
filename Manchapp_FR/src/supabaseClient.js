@@ -54,7 +54,12 @@ export const supabaseService = {
       console.log("➕ Creando nueva solución:", solution);
 
       // Determinar si usar función básica o con relaciones
-      if (solution.ingredientes || solution.utensilios || solution.materiales || solution.precauciones) {
+      if (
+        solution.ingredientes ||
+        solution.utensilios ||
+        solution.materiales ||
+        solution.precauciones
+      ) {
         return await this.createSolutionWithRelations(solution);
       }
 
@@ -81,7 +86,12 @@ export const supabaseService = {
       console.log("✏️ Actualizando solución:", id, solution);
 
       // Determinar si usar función básica o con relaciones
-      if (solution.ingredientes || solution.utensilios || solution.materiales || solution.precauciones) {
+      if (
+        solution.ingredientes ||
+        solution.utensilios ||
+        solution.materiales ||
+        solution.precauciones
+      ) {
         return await this.updateSolutionWithRelations(id, solution);
       }
 
@@ -152,12 +162,123 @@ export const supabaseService = {
     }
   },
 
+  // Funciones para obtener datos de catálogos
+  async getMateriales() {
+    try {
+      console.log("🔍 Obteniendo materiales desde Supabase...");
+
+      const { data, error } = await supabase
+        .from("materiales")
+        .select("*")
+        .order("nombre", { ascending: true });
+
+      if (error) {
+        console.error("❌ Error obteniendo materiales:", error);
+        throw error;
+      }
+
+      console.log("✅ Materiales obtenidos:", data?.length || 0);
+      return { data, error };
+    } catch (error) {
+      console.error("💥 Error en getMateriales:", error);
+      return { data: null, error };
+    }
+  },
+
+  async getSustancias() {
+    try {
+      console.log("🔍 Obteniendo sustancias desde Supabase...");
+
+      const { data, error } = await supabase
+        .from("sustancias")
+        .select("*")
+        .order("nombre", { ascending: true });
+
+      if (error) {
+        console.error("❌ Error obteniendo sustancias:", error);
+        throw error;
+      }
+
+      console.log("✅ Sustancias obtenidas:", data?.length || 0);
+      return { data, error };
+    } catch (error) {
+      console.error("💥 Error en getSustancias:", error);
+      return { data: null, error };
+    }
+  },
+
+  async getManchas() {
+    try {
+      console.log("🔍 Obteniendo manchas desde Supabase...");
+
+      const { data, error } = await supabase
+        .from("manchas")
+        .select("*")
+        .order("nombre", { ascending: true });
+
+      if (error) {
+        console.error("❌ Error obteniendo manchas:", error);
+        throw error;
+      }
+
+      console.log("✅ Manchas obtenidas:", data?.length || 0);
+      return { data, error };
+    } catch (error) {
+      console.error("💥 Error en getManchas:", error);
+      return { data: null, error };
+    }
+  },
+
+  // Función de búsqueda (si es necesaria)
+  async searchSolucionesByMaterialAndSustancia(materialId, sustanciaIds) {
+    try {
+      console.log("🔍 Buscando soluciones por material y sustancias:", {
+        materialId,
+        sustanciaIds,
+      });
+
+      // Esta función puede necesitar ajustes según el esquema real de tu BD
+      const { data, error } = await supabase
+        .from("soluciones_limpieza")
+        .select(
+          `
+          *,
+          solucion_material!inner(material_id),
+          soluciones_limpieza_ingredientes(
+            ingredientes(sustancia_id)
+          )
+        `
+        )
+        .eq("solucion_material.material_id", materialId);
+
+      if (error) {
+        console.error("❌ Error en búsqueda:", error);
+        throw error;
+      }
+
+      console.log("✅ Soluciones encontradas:", data?.length || 0);
+      return { data: data || [], error };
+    } catch (error) {
+      console.error(
+        "💥 Error en searchSolucionesByMaterialAndSustancia:",
+        error
+      );
+      return { data: [], error };
+    }
+  },
+
   // Funciones con relaciones many-to-many
   async createSolutionWithRelations(solutionData) {
     try {
       console.log("➕ Creando solución con relaciones:", solutionData);
 
-      const { ingredientes, utensilios, materiales, precauciones, ...solutionFields } = solutionData;
+      const {
+        ingredientes,
+        utensilios,
+        materiales,
+        precauciones,
+        ...solutionFields
+      } = solutionData;
 
       // 1. Crear la solución principal
       const { data: solution, error: solutionError } = await supabase
@@ -199,7 +320,13 @@ export const supabaseService = {
     try {
       console.log("✏️ Actualizando solución con relaciones:", solutionId);
 
-      const { ingredientes, utensilios, materiales, precauciones, ...solutionFields } = solutionData;
+      const {
+        ingredientes,
+        utensilios,
+        materiales,
+        precauciones,
+        ...solutionFields
+      } = solutionData;
 
       // 1. Actualizar la solución principal
       const { data: solution, error: solutionError } = await supabase
@@ -263,7 +390,7 @@ export const supabaseService = {
 
           return {
             solucion_id: solutionId,
-            ingrediente_id: ingrediente.id
+            ingrediente_id: ingrediente.id,
           };
         })
       );
@@ -300,7 +427,7 @@ export const supabaseService = {
 
           return {
             solucion_id: solutionId,
-            utensilio_id: utensilio.id
+            utensilio_id: utensilio.id,
           };
         })
       );
@@ -337,14 +464,12 @@ export const supabaseService = {
 
           return {
             solucion_id: solutionId,
-            material_id: material.id
+            material_id: material.id,
           };
         })
       );
 
-      await supabase
-        .from("solucion_material")
-        .insert(materialesRelations);
+      await supabase.from("solucion_material").insert(materialesRelations);
     }
   },
 
@@ -374,7 +499,7 @@ export const supabaseService = {
 
           return {
             solucion_id: solutionId,
-            precaucion_id: precaucion.id
+            precaucion_id: precaucion.id,
           };
         })
       );
@@ -383,5 +508,5 @@ export const supabaseService = {
         .from("solucion_precauciones")
         .insert(precaucionesRelations);
     }
-  }
+  },
 };
