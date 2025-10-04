@@ -20,7 +20,7 @@ const SolutionsSection = ({
     categoria: "",
     efectividad: "",
     ingredientes: [],
-    utensilios: []
+    utensilios: [],
   });
 
   const applyActiveFilters = useCallback(
