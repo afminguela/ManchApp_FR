@@ -1,8 +1,5 @@
 import { useState } from 'react'
 import './index.css'
-import LoadingOverlay from './components/ui/LoadingOverlay'
-
-import { Formulario, ModalConfirmacion } from './components/ui'
 
 function App() {
    const [isLoading, setIsLoading] = useState(false)
@@ -21,7 +18,7 @@ function App() {
         <h1 className="sr-only">ManchApp Lavadora - Gestión de Soluciones de Limpieza</h1>
 
         {/** Contenedor principal de la lavadora */}
-        < className="washing-machine-container">
+        <div className="washing-machine-container">
             <div className="field-background">
                 <div className="grass-texture"></div>
             </div>
@@ -121,17 +118,69 @@ function App() {
                                 <span aria-hidden="true">×</span>
                             </button>
                         </div>
-                       <Formulario />
+                        <form className="solution-form" id="solution-form" novalidate>
+                            <div className="form-group">
+                                <label htmlFor="solution-title" className="form-label">Título</label>
+                                <input type="text" id="solution-title" name="title" className="form-control" required />
+                                <div id="title-error" className="error-message" role="alert"></div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="solution-instructions" className="form-label">Instrucciones</label>
+                                <textarea id="solution-instructions" name="instructions" className="form-control" rows="4" required></textarea>
+                                <div id="instructions-error" className="error-message" role="alert"></div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="solution-difficulty" className="form-label">Dificultad</label>
+                                <select id="solution-difficulty" name="difficulty" className="form-control" required>
+                                    <option value="">Seleccionar dificultad</option>
+                                    <option value="LOW">Baja</option>
+                                    <option value="MEDIUM">Media</option>
+                                    <option value="HIGH">Alta</option>
+                                    <option value="EXTREME">Extrema</option>
+                                </select>
+                                <div id="difficulty-error" class="error-message" role="alert"></div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="solution-time" className="form-label">Tiempo (minutos)</label>
+                                <input type="number" id="solution-time" name="time_minutes" className="form-control" min="1" max="240" required />
+                                <div id="time-error" className="error-message" role="alert"></div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="solution-tips" className="form-label">Consejos (opcional)</label>
+                                <textarea id="solution-tips" name="tips" className="form-control" rows="2"></textarea>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="submit" className="btn btn--primary">Guardar</button>
+                                <button type="button" className="btn btn--outline" id="cancel-solution">Cancelar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        <</Z>
+        </div>
+
         {/* Modal de confirmación */}
-        <ModalConfirmacion />
+        <div className="modal hidden" id="confirm-modal" role="dialog" aria-labelledby="confirm-title" aria-modal="true">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h3 id="confirm-title">Confirmar Acción</h3>
+                </div>
+                <div className="modal-body">
+                    <p id="confirm-message">¿Estás seguro de que deseas realizar esta acción?</p>
+                </div>
+                <div className="modal-actions">
+                    <button className="btn btn--primary" id="confirm-yes">Confirmar</button>
+                    <button className="btn btn--outline" id="confirm-no">Cancelar</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     {/* Loading overlay */}
-    <LoadingOverlay isLoading={isLoading} />
+    <div className="loading-overlay hidden" id="loading-overlay" role="status" aria-label="Cargando">
+        <div className="loading-spinner"></div>
+        <div className="loading-text">Procesando...</div>
+    </div>
     </>
   )
 }
