@@ -33,7 +33,8 @@ export const supabaseService = {
 
       const { data, error } = await supabase
         .from("soluciones_limpieza")
-        .select(`
+        .select(
+          `
           *,
           soluciones_limpieza_ingredientes (
             ingredientes (
@@ -67,7 +68,8 @@ export const supabaseService = {
               descripcion
             )
           )
-        `)
+        `
+        )
         .order("id", { ascending: false });
 
       if (error) {

@@ -31,7 +31,8 @@ const SolutionsSection = ({
     if (filters.dificultad) {
       filtered = filtered.filter(
         (solution) =>
-          solution.dificultad?.toLowerCase() === filters.dificultad.toLowerCase()
+          solution.dificultad?.toLowerCase() ===
+          filters.dificultad.toLowerCase()
       );
     }
 
@@ -65,7 +66,7 @@ const SolutionsSection = ({
     if (filters.ingredientes.length > 0) {
       filtered = filtered.filter((solution) => {
         if (!solution.soluciones_limpieza_ingredientes) return false;
-        
+
         return filters.ingredientes.some((ingredientId) =>
           solution.soluciones_limpieza_ingredientes.some(
             (rel) => rel.ingredientes?.id === ingredientId
@@ -78,7 +79,7 @@ const SolutionsSection = ({
     if (filters.utensilios.length > 0) {
       filtered = filtered.filter((solution) => {
         if (!solution.soluciones_limpieza_utensilios) return false;
-        
+
         return filters.utensilios.some((utensilioId) =>
           solution.soluciones_limpieza_utensilios.some(
             (rel) => rel.utensilios?.id === utensilioId
@@ -88,7 +89,12 @@ const SolutionsSection = ({
     }
 
     console.log("🔍 Filtros aplicados:", filters);
-    console.log("📊 Soluciones filtradas:", filtered.length, "de", solutions.length);
+    console.log(
+      "📊 Soluciones filtradas:",
+      filtered.length,
+      "de",
+      solutions.length
+    );
     setFilteredSolutions(filtered);
   };
 
