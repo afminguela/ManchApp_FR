@@ -37,22 +37,26 @@ const SolutionItem = ({ solution, onEdit, onDelete, onClick }) => {
         <h3 className="solution-title">{solutionData.title}</h3>
 
         {/* Mostrar material y sustancia */}
-        <div className="solution-context">
-          {solution.solucion_materiales &&
-            solution.solucion_materiales.length > 0 && (
-              <span className="context-badge material-context">
-                🧵{" "}
-                {solution.solucion_materiales
-                  .map((m) => m.materiales?.nombre)
-                  .join(", ")}
+        {((solution.solucion_materiales && solution.solucion_materiales.length > 0) || 
+          solution.sustancias) && (
+          <div className="solution-context">
+            {solution.solucion_materiales &&
+              solution.solucion_materiales.length > 0 && (
+                <span className="context-badge material-context">
+                  🧵{" "}
+                  {solution.solucion_materiales
+                    .map((m) => m.materiales?.nombre)
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              )}
+            {solution.sustancias && solution.sustancias.nombre && (
+              <span className="context-badge stain-context">
+                🔴 {solution.sustancias.nombre}
               </span>
             )}
-          {solution.sustancias && (
-            <span className="context-badge stain-context">
-              🔴 {solution.sustancias.nombre}
-            </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="solution-meta">
           <DifficultyBadge difficulty={solutionData.difficulty} />
