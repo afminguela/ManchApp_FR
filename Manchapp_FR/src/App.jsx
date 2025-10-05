@@ -45,8 +45,8 @@ function App() {
 
   // Estados de la pantalla y LEDs
   const [screenDisplay, setScreenDisplay] = useState({
-    mainText: "ManchApp 2025, Enciende la lavadora",
-    statusText: "Introduce tu mail y contraseña para empezar",
+    mainText: "ManchApp 2025, presiona el boton → ",
+    statusText: "Inicia sesión para empezar",
   });
 
   const [leds, setLeds] = useState({
