@@ -21,9 +21,52 @@ export const supabaseService = {
     return { data, error };
   },
 
+  async signUp(name, email, password) {
+    try {
+      console.log("📝 Registrando nuevo usuario...");
+
+      // Registrar usuario en Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            display_name: name,
+          },
+        },
+      });
+
+      if (error) {
+        console.error("❌ Error al registrar usuario:", error);
+        return { data: null, error };
+      }
+
+      console.log("✅ Usuario registrado exitosamente:", data);
+      return { data, error: null };
+    } catch (error) {
+      console.error("❌ Excepción al registrar usuario:", error);
+      return { data: null, error };
+    }
+  },
+
   async signOut() {
     const { error } = await supabase.auth.signOut();
     return { error };
+  },
+
+  async getCurrentUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  },
+
+  async getSession() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session;
   },
 
   // Soluciones básicas

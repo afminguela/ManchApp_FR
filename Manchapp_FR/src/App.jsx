@@ -180,6 +180,77 @@ function App() {
     hideLoading();
   };
 
+  const handleRegister = async (registerData) => {
+    showLoading("Registrando usuario...");
+    updateLeds({ washing: true });
+
+    try {
+      console.log("📝 Intentando registrar usuario:", registerData.email);
+
+      const { data, error } = await supabaseService.signUp(
+        registerData.name,
+        registerData.email,
+        registerData.password
+      );
+
+      if (error) {
+        console.error("❌ Error de Supabase:", error);
+
+        // Mensajes de error personalizados
+        let errorMessage = "Error al registrar usuario";
+        if (error.message.includes("already registered")) {
+          errorMessage = "Este email ya está registrado. Intenta iniciar sesión.";
+        } else if (error.message.includes("password")) {
+          errorMessage = "La contraseña no cumple con los requisitos de seguridad.";
+        } else if (error.message.includes("email")) {
+          errorMessage = "Email inválido. Verifica el formato.";
+        } else {
+          errorMessage = error.message;
+        }
+
+        alert(`Error: ${errorMessage}`);
+        updateScreen("ERROR REGISTRO", errorMessage);
+        updateLeds({ washing: false });
+        hideLoading();
+        return;
+      }
+
+      console.log("✅ Usuario registrado:", data);
+
+      // Verificar si requiere confirmación de email
+      if (data.user && !data.session) {
+        alert(
+          "¡Registro exitoso! 📧\n\nPor favor, verifica tu email para confirmar tu cuenta antes de iniciar sesión."
+        );
+        updateScreen(
+          "CONFIRMA EMAIL",
+          `Enviado a: ${registerData.email.substring(0, 20)}...`
+        );
+      } else {
+        // Login automático si no requiere confirmación
+        setState((prev) => ({
+          ...prev,
+          authenticated: true,
+          currentUser: registerData.name,
+        }));
+        setShowLogin(false);
+        setShowSearchForm(true);
+        updateScreen("BIENVENIDO", `Usuario: ${registerData.name}`);
+
+        alert("¡Registro exitoso! 🎉\n\nBienvenido a ManchApp.");
+      }
+
+      updateLeds({ washing: false });
+    } catch (error) {
+      console.error("❌ Excepción al registrar:", error);
+      alert("Error inesperado al registrar usuario. Intenta de nuevo.");
+      updateScreen("ERROR", "Error inesperado");
+      updateLeds({ washing: false });
+    }
+
+    hideLoading();
+  };
+
   const handleLogout = () => {
     setState({
       connected: false,
@@ -355,7 +426,8 @@ function App() {
 
             <LoginSection
               isVisible={showLogin && !state.authenticated}
-              onSubmit={handleLogin}
+              onLogin={handleLogin}
+              onRegister={handleRegister}
             />
 
             <SearchForm
