@@ -1,7 +1,7 @@
 import DifficultyBadge from "./DifficultyBadge";
 import Button from "../ui/Button";
 
-const SolutionItem = ({ solution, onEdit, onDelete }) => {
+const SolutionItem = ({ solution, onEdit, onDelete, onClick }) => {
   // Mapear campos de la base de datos a campos esperados por el componente
   const solutionData = {
     id: solution.id,
@@ -12,10 +12,48 @@ const SolutionItem = ({ solution, onEdit, onDelete }) => {
     tips: solution.consejos || solution.tips,
   };
 
+  const handleCardClick = (e) => {
+    // Solo activar onClick si no se hace click en los botones
+    if (!e.target.closest("button")) {
+      onClick?.(solution);
+    }
+  };
+
   return (
-    <article className="solution-item">
+    <article
+      className="solution-item clickable"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.(solution);
+        }
+      }}
+      aria-label={`Ver detalles de ${solutionData.title}`}
+    >
       <div className="solution-content">
         <h3 className="solution-title">{solutionData.title}</h3>
+
+        {/* Mostrar material y sustancia */}
+        <div className="solution-context">
+          {solution.solucion_materiales &&
+            solution.solucion_materiales.length > 0 && (
+              <span className="context-badge material-context">
+                🧵{" "}
+                {solution.solucion_materiales
+                  .map((m) => m.materiales?.nombre)
+                  .join(", ")}
+              </span>
+            )}
+          {solution.sustancias && (
+            <span className="context-badge stain-context">
+              🔴 {solution.sustancias.nombre}
+            </span>
+          )}
+        </div>
+
         <div className="solution-meta">
           <DifficultyBadge difficulty={solutionData.difficulty} />
           <span>{solutionData.time_minutes} min</span>
@@ -25,13 +63,19 @@ const SolutionItem = ({ solution, onEdit, onDelete }) => {
         </div>
         <p className="solution-instructions">{solutionData.instructions}</p>
 
+        {/* Mostrar solo un preview en la card */}
+        <p className="solution-preview-hint">
+          👉 Click para ver detalles completos
+        </p>
+
         {solutionData.tips && (
           <p className="solution-tips">
             <strong>Consejos:</strong> {solutionData.tips}
           </p>
         )}
 
-        <div className="solution-details">
+        {/* Ocultar detalles completos en la card - solo en vista detallada */}
+        <div className="solution-details" style={{ display: "none" }}>
           {/* Ingredientes */}
           {solution.soluciones_limpieza_ingredientes &&
             solution.soluciones_limpieza_ingredientes.length > 0 && (
