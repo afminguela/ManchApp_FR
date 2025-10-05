@@ -4,7 +4,7 @@
 
 ![ManchApp Hero](public/washing-machine-hero.jpg)
 
-**Una aplicación web interactiva para gestionar y descubrir soluciones efectivas para eliminar manchas y limpiar diferentes materiales.**
+**Una aplicación web interactiva para gestionar y descubrir soluciones efectivas para eliminar manchas y limpiar diferentes materiales. Parte de Adulting101**
 
 [![React](https://img.shields.io/badge/React-19.1.1-61dafb?logo=react)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.1.7-646cff?logo=vite)](https://vitejs.dev/)
@@ -439,15 +439,16 @@ ManchApp cumple con los estándares **WCAG 2.1 AAA**, incluyendo:
 
 ---
 
-## 📝 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver archivo [LICENSE](LICENSE) para más detalles.
 
----
+
 
 ## 👥 Autores
 
-- **Antonio Fernández Minguela** - [@afminguela](https://github.com/afminguela)
+- **Ana Fernández Minguela** - [@afminguela](https://github.com/afminguela)
+- **Claude sonnet 4.1** corrección de errores y limpiado de codigo muerto
+- **Lovable** asistencia al diseño
+
 
 ---
 
@@ -457,6 +458,10 @@ Este proyecto está bajo la Licencia MIT. Ver archivo [LICENSE](LICENSE) para m�
 - [Vite](https://vitejs.dev/) por la velocidad de desarrollo
 - [React](https://reactjs.org/) por la potencia de los componentes
 - IronHack por el bootcamp de desarrollo web
+- Youtube contenido adicional
+- Spotify BSO
+- señorMarido por llevarse las fieras a pasear
+- BCNENG por los consejos de comunidad
 
 ---
 
@@ -470,6 +475,6 @@ Este proyecto está bajo la Licencia MIT. Ver archivo [LICENSE](LICENSE) para m�
 
 **[⬆ Volver arriba](#-manchapp---gestor-inteligente-de-soluciones-de-limpieza)**
 
-Hecho con ❤️ y ☕ por Antonio Fernández Minguela
+Hecho con ❤️ y ☕ por Ana Fernández Minguela con el soporte y paciencia de señorMarido.
 
 </div>
