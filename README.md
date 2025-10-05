@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![ManchApp Hero](ManchApp_FR/public/washing-machine-hero.jpg)
+![ManchApp Hero](Manchapp_FR/public/washing-machine-hero.jpg)
 
 **Una aplicación web interactiva para gestionar y descubrir soluciones efectivas para eliminar manchas y limpiar diferentes materiales. Parte de Adulting101**
 
