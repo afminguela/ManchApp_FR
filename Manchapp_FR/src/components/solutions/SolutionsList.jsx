@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SolutionItem from "./SolutionItem";
 import SolutionDetail from "./SolutionDetail";
 import Button from "../ui/Button";
@@ -12,6 +12,11 @@ const SolutionsList = ({
   const ITEMS_PER_PAGE = 4;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSolution, setSelectedSolution] = useState(null);
+
+  // Reset to page 1 when solutions change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [solutions]);
 
   if (solutions.length === 0) {
     return (
