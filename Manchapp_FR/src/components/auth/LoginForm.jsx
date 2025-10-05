@@ -24,12 +24,12 @@ const LoginForm = ({ onSubmit }) => {
       }));
     }
   };
-// validacion de formulario
+  // validacion de formulario
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = "El usuario es requerido";
+      newErrors.username = "El email es requerido";
     }
 
     if (!formData.password.trim()) {
@@ -51,13 +51,15 @@ const LoginForm = ({ onSubmit }) => {
   return (
     <form className="login-form" onSubmit={handleSubmit} noValidate>
       <FormField
-        label="Usuario"
+        label="Email"
         id="username"
         name="username"
+        type="email"
         value={formData.username}
         onChange={handleChange}
         error={errors.username}
         required
+        placeholder="tu@email.com"
       />
 
       <FormField

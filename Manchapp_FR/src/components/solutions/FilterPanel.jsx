@@ -40,8 +40,8 @@ const FilterPanel = ({
 
         setAvailableIngredients(ingredientes || []);
         setAvailableUtensilios(utensilios || []);
-      } catch (error) {
-        console.error("Error cargando datos del catálogo:", error);
+      } catch {
+        // Error al cargar catálogo
       }
     };
 

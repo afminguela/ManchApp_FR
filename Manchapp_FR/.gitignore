@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Documentación interna y de desarrollo (no necesaria para deploy)
+EVALUACION_RUBRICA.md
+REGISTRO_USUARIOS.md
+GUIA_PRUEBAS_REGISTRO.md
+CONFIGURACION_TABLA_USUARIOS.md
+SUPABASE_SETUP.md

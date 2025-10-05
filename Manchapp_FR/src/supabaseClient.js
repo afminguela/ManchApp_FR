@@ -23,13 +23,11 @@ export const supabaseService = {
 
   async signUp(name, email, password) {
     try {
-      console.log("📝 Registrando nuevo usuario...");
-
-      // Registrar usuario en Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: undefined,
           data: {
             full_name: name,
             display_name: name,
@@ -37,15 +35,29 @@ export const supabaseService = {
         },
       });
 
-      if (error) {
-        console.error("❌ Error al registrar usuario:", error);
-        return { data: null, error };
+      if (authError) {
+        return { data: null, error: authError };
       }
 
-      console.log("✅ Usuario registrado exitosamente:", data);
-      return { data, error: null };
+      if (authData.user) {
+        try {
+          await supabase
+            .from("usuarios")
+            .insert([
+              {
+                user: name,
+                email: email,
+                password: "***",
+              },
+            ])
+            .select();
+        } catch {
+          // Usuario ya creado en Auth, continuamos
+        }
+      }
+
+      return { data: authData, error: null };
     } catch (error) {
-      console.error("❌ Excepción al registrar usuario:", error);
       return { data: null, error };
     }
   },
@@ -67,6 +79,48 @@ export const supabaseService = {
       data: { session },
     } = await supabase.auth.getSession();
     return session;
+  },
+
+  // Usuarios - Tabla personalizada
+  async getUserProfile(userId) {
+    try {
+      const { data, error } = await supabase
+        .from("usuarios")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.error("❌ Error al obtener perfil de usuario:", error);
+        return { data: null, error };
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error("❌ Excepción al obtener perfil:", error);
+      return { data: null, error };
+    }
+  },
+
+  async updateUserProfile(userId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from("usuarios")
+        .update(updates)
+        .eq("id", userId)
+        .select();
+
+      if (error) {
+        console.error("❌ Error al actualizar perfil:", error);
+        return { data: null, error };
+      }
+
+      console.log("✅ Perfil actualizado:", data);
+      return { data, error: null };
+    } catch (error) {
+      console.error("❌ Excepción al actualizar perfil:", error);
+      return { data: null, error };
+    }
   },
 
   // Soluciones básicas

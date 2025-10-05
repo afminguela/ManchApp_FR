@@ -80,7 +80,9 @@ const RegisterForm = ({ onSubmit, onSwitchToLogin }) => {
         if (!passwordValidation.hasLowerCase) issues.push("una minúscula");
         if (!passwordValidation.hasNumber) issues.push("un número");
 
-        newErrors.password = `La contraseña debe contener: ${issues.join(", ")}`;
+        newErrors.password = `La contraseña debe contener: ${issues.join(
+          ", "
+        )}`;
       }
     }
 

@@ -65,7 +65,7 @@ function App() {
     "Estado de conexión: Desconocido"
   );
 
-  // Estado de soluciones (se cargarán desde Supabase)
+  // Estado de soluciones (se cargan desde Supabase)
   const [solutions, setSolutions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
 
@@ -85,8 +85,7 @@ function App() {
           const { data, error } = await supabaseService.getSolutions();
           if (error) throw error;
           setSolutions(data || []);
-        } catch (error) {
-          console.error("Error cargando soluciones:", error);
+        } catch {
           alert("Error al cargar las soluciones desde la base de datos");
         }
         hideLoading();
@@ -114,12 +113,6 @@ function App() {
     setLeds((prev) => ({ ...prev, ...newLeds }));
   };
 
-  // Simular operación async
-  const simulateAsync = (duration = 2000) => {
-    return new Promise((resolve) => setTimeout(resolve, duration));
-  };
-
-  // Manejadores de eventos
   const handlePowerButton = async () => {
     if (!state.connected) {
       showLoading("Verificando conexión con Supabase...");
@@ -142,7 +135,6 @@ function App() {
         updateLeds({ power: false, connection: false, washing: false });
         setConnectionMessage(`Estado: Error - ${error.message}`);
         updateScreen("ERROR", "Conexión fallida");
-        console.error("Error de conexión:", error);
       }
 
       hideLoading();
@@ -154,27 +146,50 @@ function App() {
     updateLeds({ washing: true });
 
     try {
-      await simulateAsync(1500);
+      const { data, error } = await supabaseService.signIn(
+        loginData.username,
+        loginData.password
+      );
 
-      if (
-        loginData.username === VALID_CREDENTIALS.username &&
-        loginData.password === VALID_CREDENTIALS.password
-      ) {
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.user) {
+        const { data: profile } = await supabaseService.getUserProfile(
+          data.user.id
+        );
+
+        const displayName =
+          profile?.user ||
+          data.user.user_metadata?.full_name ||
+          data.user.email.split("@")[0];
+
         setState((prev) => ({
           ...prev,
           authenticated: true,
-          currentUser: loginData.username,
+          currentUser: displayName,
         }));
         setShowLogin(false);
         setShowSearchForm(true);
-        updateScreen("BIENVENIDO", `Usuario: ${loginData.username}`);
+        updateScreen("BIENVENIDO", `Usuario: ${displayName}`);
         updateLeds({ washing: false });
       } else {
         throw new Error("Credenciales inválidas");
       }
-    } catch {
-      alert("Error: Credenciales inválidas");
-      updateScreen("ERROR LOGIN", "Credenciales incorrectas");
+    } catch (error) {
+      let errorMessage = error.message;
+
+      if (error.message === "Invalid login credentials") {
+        errorMessage = "Credenciales inválidas";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage =
+          "⚠️ Email no verificado. Ve a Supabase Dashboard → Authentication → Providers → Email y desactiva 'Confirm email'";
+      }
+
+      alert(`Error: ${errorMessage}`);
+      updateScreen("ERROR LOGIN", "Verifica tus credenciales");
+      updateLeds({ washing: false });
     }
 
     hideLoading();
@@ -185,25 +200,28 @@ function App() {
     updateLeds({ washing: true });
 
     try {
-      console.log("📝 Intentando registrar usuario:", registerData.email);
-
-      const { data, error } = await supabaseService.signUp(
+      const { error } = await supabaseService.signUp(
         registerData.name,
         registerData.email,
         registerData.password
       );
 
       if (error) {
-        console.error("❌ Error de Supabase:", error);
-
-        // Mensajes de error personalizados
         let errorMessage = "Error al registrar usuario";
         if (error.message.includes("already registered")) {
-          errorMessage = "Este email ya está registrado. Intenta iniciar sesión.";
+          errorMessage =
+            "Este email ya está registrado. Intenta iniciar sesión.";
         } else if (error.message.includes("password")) {
-          errorMessage = "La contraseña no cumple con los requisitos de seguridad.";
+          errorMessage =
+            "La contraseña no cumple con los requisitos de seguridad.";
         } else if (error.message.includes("email")) {
           errorMessage = "Email inválido. Verifica el formato.";
+        } else if (
+          error.message.includes("Email not confirmed") ||
+          error.message.includes("confirm")
+        ) {
+          errorMessage =
+            "⚠️ Necesitas desactivar la verificación de email en Supabase.\n\nVe a: Dashboard → Authentication → Providers → Email y desactiva 'Confirm email'";
         } else {
           errorMessage = error.message;
         }
@@ -215,34 +233,19 @@ function App() {
         return;
       }
 
-      console.log("✅ Usuario registrado:", data);
+      setState((prev) => ({
+        ...prev,
+        authenticated: true,
+        currentUser: registerData.name,
+      }));
+      setShowLogin(false);
+      setShowSearchForm(true);
+      updateScreen("BIENVENIDO", `Usuario: ${registerData.name}`);
 
-      // Verificar si requiere confirmación de email
-      if (data.user && !data.session) {
-        alert(
-          "¡Registro exitoso! 📧\n\nPor favor, verifica tu email para confirmar tu cuenta antes de iniciar sesión."
-        );
-        updateScreen(
-          "CONFIRMA EMAIL",
-          `Enviado a: ${registerData.email.substring(0, 20)}...`
-        );
-      } else {
-        // Login automático si no requiere confirmación
-        setState((prev) => ({
-          ...prev,
-          authenticated: true,
-          currentUser: registerData.name,
-        }));
-        setShowLogin(false);
-        setShowSearchForm(true);
-        updateScreen("BIENVENIDO", `Usuario: ${registerData.name}`);
-
-        alert("¡Registro exitoso! 🎉\n\nBienvenido a ManchApp.");
-      }
+      alert("¡Registro exitoso! 🎉\n\nBienvenido a ManchApp.");
 
       updateLeds({ washing: false });
-    } catch (error) {
-      console.error("❌ Excepción al registrar:", error);
+    } catch {
       alert("Error inesperado al registrar usuario. Intenta de nuevo.");
       updateScreen("ERROR", "Error inesperado");
       updateLeds({ washing: false });
@@ -290,8 +293,7 @@ function App() {
         }`
       );
       updateLeds({ washing: false });
-    } catch (error) {
-      console.error("Error en búsqueda:", error);
+    } catch {
       alert("Error al buscar soluciones. Inténtalo de nuevo.");
       updateScreen("ERROR", "Búsqueda fallida");
       updateLeds({ washing: false });
@@ -339,7 +341,6 @@ function App() {
       setShowConfirmModal(false);
       alert("Solución eliminada correctamente");
     } catch (error) {
-      console.error("Error eliminando solución:", error);
       alert(`Error al eliminar la solución: ${error.message}`);
     }
 
@@ -377,7 +378,6 @@ function App() {
       setState((prev) => ({ ...prev, currentEditingSolution: null }));
       alert("Solución guardada correctamente");
     } catch (error) {
-      console.error("Error guardando solución:", error);
       alert(`Error al guardar la solución: ${error.message}`);
     }
 
