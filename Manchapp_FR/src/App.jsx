@@ -24,11 +24,6 @@ import SolutionForm from "./components/solutions/SolutionForm";
 import SearchForm from "./components/solutions/SearchForm";
 
 function App() {
-  const VALID_CREDENTIALS = {
-    username: "admin",
-    password: "1234",
-  };
-
   // Estados principales
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Procesando...");
@@ -50,8 +45,8 @@ function App() {
 
   // Estados de la pantalla y LEDs
   const [screenDisplay, setScreenDisplay] = useState({
-    mainText: "ManchApp 2025",
-    statusText: "",
+    mainText: "ManchApp 2025, Enciende la lavadora",
+    statusText: "Introduce tu mail y contraseña para empezar",
   });
 
   const [leds, setLeds] = useState({
@@ -76,7 +71,7 @@ function App() {
     onConfirm: null,
   });
 
-  // Cargar soluciones desde Supabase cuando el usuario está autenticado
+  // Carga soluciones desde Supabase cuando el usuario está autenticado
   useEffect(() => {
     const loadSolutions = async () => {
       if (state.authenticated) {
@@ -113,6 +108,24 @@ function App() {
     setLeds((prev) => ({ ...prev, ...newLeds }));
   };
 
+  // Wrapper para operaciones asíncronas (reduce duplicación de código)
+  const handleAsyncOperation = async (message, operation, onError) => {
+    showLoading(message);
+    updateLeds({ washing: true });
+    try {
+      await operation();
+    } catch (error) {
+      if (onError) {
+        onError(error);
+      } else {
+        alert(`Error: ${error.message}`);
+      }
+    } finally {
+      updateLeds({ washing: false });
+      hideLoading();
+    }
+  };
+
   const handlePowerButton = async () => {
     if (!state.connected) {
       showLoading("Verificando conexión con Supabase...");
@@ -126,7 +139,7 @@ function App() {
           setState((prev) => ({ ...prev, connected: true }));
           updateLeds({ power: true, connection: true, washing: false });
           setConnectionMessage(`Estado: Conectado a Supabase`);
-          updateScreen("CONECTADO", "Base de datos lista");
+          updateScreen("CONECTADO", "Base de datos lista para usar");
           setShowLogin(true);
         } else {
           throw new Error(connectionResult.error || "Error de conexión");
@@ -141,118 +154,106 @@ function App() {
     }
   };
 
-  const handleLogin = async (loginData) => {
-    showLoading("Autenticando...");
-    updateLeds({ washing: true });
-
-    try {
-      const { data, error } = await supabaseService.signIn(
-        loginData.username,
-        loginData.password
-      );
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.user) {
-        const { data: profile } = await supabaseService.getUserProfile(
-          data.user.id
+  const handleLogin = (loginData) =>
+    handleAsyncOperation(
+      "Autenticando...",
+      async () => {
+        const { data, error } = await supabaseService.signIn(
+          loginData.username,
+          loginData.password
         );
 
-        const displayName =
-          profile?.user ||
-          data.user.user_metadata?.full_name ||
-          data.user.email.split("@")[0];
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (data.user) {
+          const { data: profile } = await supabaseService.getUserProfile(
+            data.user.id
+          );
+
+          const displayName =
+            profile?.user ||
+            data.user.user_metadata?.full_name ||
+            data.user.email.split("@")[0];
+
+          setState((prev) => ({
+            ...prev,
+            authenticated: true,
+            currentUser: displayName,
+          }));
+          setShowLogin(false);
+          setShowSearchForm(true);
+          updateScreen("BIENVENIDO", `Usuario: ${displayName}`);
+        } else {
+          throw new Error("Credenciales inválidas");
+        }
+      },
+      (error) => {
+        let errorMessage = error.message;
+
+        if (error.message === "Invalid login credentials") {
+          errorMessage = "Credenciales inválidas";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage =
+            "⚠️ Email no verificado. Ve a tu bandeja de entrada y confirma tu email.";
+        }
+
+        alert(`Error: ${errorMessage}`);
+        updateScreen("ERROR LOGIN", "Verifica tus credenciales");
+      }
+    );
+
+  const handleRegister = (registerData) =>
+    handleAsyncOperation(
+      "Registrando usuario...",
+      async () => {
+        const { error } = await supabaseService.signUp(
+          registerData.name,
+          registerData.email,
+          registerData.password
+        );
+
+        if (error) {
+          let errorMessage = "Error al registrar usuario";
+          if (error.message.includes("already registered")) {
+            errorMessage =
+              "Este email ya está registrado. Intenta iniciar sesión.";
+          } else if (error.message.includes("password")) {
+            errorMessage =
+              "La contraseña no cumple con los requisitos de seguridad.";
+          } else if (error.message.includes("email")) {
+            errorMessage = "Email inválido. Verifica el formato.";
+          } else if (
+            error.message.includes("Email not confirmed") ||
+            error.message.includes("confirm")
+          ) {
+            errorMessage =
+              "⚠️ Necesitas verificar tu email. Ve a tu bandeja de entrada y confirma tu email.";
+          } else {
+            errorMessage = error.message;
+          }
+
+          updateScreen("ERROR REGISTRO", errorMessage);
+          throw new Error(errorMessage);
+        }
 
         setState((prev) => ({
           ...prev,
           authenticated: true,
-          currentUser: displayName,
+          currentUser: registerData.name,
         }));
         setShowLogin(false);
         setShowSearchForm(true);
-        updateScreen("BIENVENIDO", `Usuario: ${displayName}`);
-        updateLeds({ washing: false });
-      } else {
-        throw new Error("Credenciales inválidas");
+        updateScreen("BIENVENIDO", `Usuario: ${registerData.name}`);
+
+        alert("¡Registrado con éxito! 🎉\n\nBienvenido a ManchApp.");
+      },
+      (error) => {
+        alert(`Error: ${error.message}`);
+        updateScreen("ERROR", "Error inesperado");
       }
-    } catch (error) {
-      let errorMessage = error.message;
-
-      if (error.message === "Invalid login credentials") {
-        errorMessage = "Credenciales inválidas";
-      } else if (error.message.includes("Email not confirmed")) {
-        errorMessage =
-          "⚠️ Email no verificado. Ve a Supabase Dashboard → Authentication → Providers → Email y desactiva 'Confirm email'";
-      }
-
-      alert(`Error: ${errorMessage}`);
-      updateScreen("ERROR LOGIN", "Verifica tus credenciales");
-      updateLeds({ washing: false });
-    }
-
-    hideLoading();
-  };
-
-  const handleRegister = async (registerData) => {
-    showLoading("Registrando usuario...");
-    updateLeds({ washing: true });
-
-    try {
-      const { error } = await supabaseService.signUp(
-        registerData.name,
-        registerData.email,
-        registerData.password
-      );
-
-      if (error) {
-        let errorMessage = "Error al registrar usuario";
-        if (error.message.includes("already registered")) {
-          errorMessage =
-            "Este email ya está registrado. Intenta iniciar sesión.";
-        } else if (error.message.includes("password")) {
-          errorMessage =
-            "La contraseña no cumple con los requisitos de seguridad.";
-        } else if (error.message.includes("email")) {
-          errorMessage = "Email inválido. Verifica el formato.";
-        } else if (
-          error.message.includes("Email not confirmed") ||
-          error.message.includes("confirm")
-        ) {
-          errorMessage =
-            "⚠️ Necesitas desactivar la verificación de email en Supabase.\n\nVe a: Dashboard → Authentication → Providers → Email y desactiva 'Confirm email'";
-        } else {
-          errorMessage = error.message;
-        }
-
-        alert(`Error: ${errorMessage}`);
-        updateScreen("ERROR REGISTRO", errorMessage);
-        updateLeds({ washing: false });
-        hideLoading();
-        return;
-      }
-
-      setState((prev) => ({
-        ...prev,
-        authenticated: true,
-        currentUser: registerData.name,
-      }));
-      setShowLogin(false);
-      setShowSearchForm(true);
-      updateScreen("BIENVENIDO", `Usuario: ${registerData.name}`);
-
-      alert("¡Registro exitoso! 🎉\n\nBienvenido a ManchApp.");
-
-      updateLeds({ washing: false });
-    } catch {
-      alert("Error inesperado al registrar usuario. Intenta de nuevo.");
-      updateScreen("ERROR", "Error inesperado");
-      updateLeds({ washing: false });
-    }
-
-    hideLoading();
-  };
+    );
 
   const handleLogout = () => {
     setState({
@@ -270,37 +271,33 @@ function App() {
     updateScreen("ManchApp 2025", "");
   };
 
-  const handleSearch = async (materialId, sustanciaId) => {
-    showLoading("Buscando soluciones...");
-    updateLeds({ washing: true });
+  const handleSearch = (materialId, sustanciaId) =>
+    handleAsyncOperation(
+      "Buscando soluciones...",
+      async () => {
+        const { data, error } =
+          await supabaseService.searchSolucionesByMaterialAndSustancia(
+            materialId,
+            sustanciaId
+          );
 
-    try {
-      const { data, error } =
-        await supabaseService.searchSolucionesByMaterialAndSustancia(
-          materialId,
-          sustanciaId
+        if (error) throw error;
+
+        setSearchResults(data || []);
+        setShowSearchForm(false);
+        setShowSolutions(true);
+        updateScreen(
+          "RESULTADOS",
+          `${data?.length || 0} soluciones encontradas${
+            data?.length === 0 ? " - mostrando todo el catálogo" : ""
+          }`
         );
-
-      if (error) throw error;
-
-      setSearchResults(data || []);
-      setShowSearchForm(false);
-      setShowSolutions(true);
-      updateScreen(
-        "RESULTADOS",
-        `${data?.length || 0} soluciones encontradas${
-          data?.length === 0 ? " - mostrando todo el catálogo" : ""
-        }`
-      );
-      updateLeds({ washing: false });
-    } catch {
-      alert("Error al buscar soluciones. Inténtalo de nuevo.");
-      updateScreen("ERROR", "Búsqueda fallida");
-      updateLeds({ washing: false });
-    }
-
-    hideLoading();
-  };
+      },
+      () => {
+        alert("Error al buscar soluciones. Inténtalo de nuevo.");
+        updateScreen("ERROR", "Búsqueda fallida");
+      }
+    );
 
   const handleBackToSearch = () => {
     setShowSolutions(false);
@@ -330,59 +327,57 @@ function App() {
     setShowConfirmModal(true);
   };
 
-  const confirmDeleteSolution = async (id) => {
-    showLoading("Eliminando solución...");
-
-    try {
-      const { error } = await supabaseService.deleteSolution(id);
-      if (error) throw error;
-
-      setSolutions((prev) => prev.filter((s) => s.id !== id));
-      setShowConfirmModal(false);
-      alert("Solución eliminada correctamente");
-    } catch (error) {
-      alert(`Error al eliminar la solución: ${error.message}`);
-    }
-
-    hideLoading();
-  };
-
-  const handleSolutionSubmit = async (solutionData) => {
-    showLoading("Guardando solución...");
-
-    try {
-      if (state.currentEditingSolution) {
-        // Editar solución existente
-        const { data, error } = await supabaseService.updateSolution(
-          state.currentEditingSolution.id,
-          solutionData
-        );
+  const confirmDeleteSolution = (id) =>
+    handleAsyncOperation(
+      "Eliminando solución...",
+      async () => {
+        const { error } = await supabaseService.deleteSolution(id);
         if (error) throw error;
 
-        setSolutions((prev) =>
-          prev.map((s) =>
-            s.id === state.currentEditingSolution.id ? data[0] : s
-          )
-        );
-      } else {
-        // Agregar nueva solución
-        const { data, error } = await supabaseService.createSolution(
-          solutionData
-        );
-        if (error) throw error;
-
-        setSolutions((prev) => [...prev, data[0]]);
+        setSolutions((prev) => prev.filter((s) => s.id !== id));
+        setShowConfirmModal(false);
+        alert("Solución eliminada correctamente");
+      },
+      (error) => {
+        alert(`Error al eliminar la solución: ${error.message}`);
       }
+    );
 
-      setShowSolutionModal(false);
-      setState((prev) => ({ ...prev, currentEditingSolution: null }));
-      alert("Solución guardada correctamente");
-    } catch (error) {
-      alert(`Error al guardar la solución: ${error.message}`);
-    }
+  const handleSolutionSubmit = (solutionData) =>
+    handleAsyncOperation(
+      "Guardando solución...",
+      async () => {
+        if (state.currentEditingSolution) {
+          // Editar solución existente
+          const { data, error } = await supabaseService.updateSolution(
+            state.currentEditingSolution.id,
+            solutionData
+          );
+          if (error) throw error;
 
-    hideLoading();
-  };
+          setSolutions((prev) =>
+            prev.map((s) =>
+              s.id === state.currentEditingSolution.id ? data[0] : s
+            )
+          );
+        } else {
+          // Agregar nueva solución
+          const { data, error } = await supabaseService.createSolution(
+            solutionData
+          );
+          if (error) throw error;
+
+          setSolutions((prev) => [...prev, data[0]]);
+        }
+
+        setShowSolutionModal(false);
+        setState((prev) => ({ ...prev, currentEditingSolution: null }));
+        alert("Solución guardada correctamente");
+      },
+      (error) => {
+        alert(`Error al guardar la solución: ${error.message}`);
+      }
+    );
 
   const handleCancelSolution = () => {
     setShowSolutionModal(false);

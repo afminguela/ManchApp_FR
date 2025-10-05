@@ -52,7 +52,7 @@ export const supabaseService = {
             ])
             .select();
         } catch {
-          // Usuario ya creado en Auth, continuamos
+          console.error("❌ Error al crear perfil de usuario");
         }
       }
 
@@ -123,7 +123,7 @@ export const supabaseService = {
     }
   },
 
-  // Soluciones básicas
+  // -----------------------------------------FUNCIONES DE SOLUCIONES - CRUD
   async getSolutions() {
     try {
       console.log("🔍 Obteniendo soluciones desde Supabase...");
@@ -182,7 +182,7 @@ export const supabaseService = {
       return { data: null, error };
     }
   },
-
+// Create 
   async createSolution(solution) {
     try {
       console.log("➕ Creando nueva solución:", solution);
@@ -215,6 +215,7 @@ export const supabaseService = {
     }
   },
 
+  //Update
   async updateSolution(id, solution) {
     try {
       console.log("✏️ Actualizando solución:", id, solution);
@@ -247,7 +248,7 @@ export const supabaseService = {
       return { data: null, error };
     }
   },
-
+// Delete
   async deleteSolution(id) {
     try {
       console.log("🗑️ Eliminando solución:", id);
@@ -270,7 +271,7 @@ export const supabaseService = {
     }
   },
 
-  // Función para verificar la conexión
+  //--------------------------------- Función para verificar la conexión
   async checkConnection() {
     try {
       console.log("🔌 Verificando conexión con Supabase...");
@@ -296,7 +297,7 @@ export const supabaseService = {
     }
   },
 
-  // Funciones para obtener datos de catálogos
+  // ---------------------------------Funciones para obtener datos de las Tablas
   async getMateriales() {
     try {
       console.log("🔍 Obteniendo materiales desde Supabase...");
@@ -371,7 +372,7 @@ export const supabaseService = {
         sustanciaIds,
       });
 
-      // Esta función puede necesitar ajustes según el esquema real de tu BD
+      // Realizar la consulta con los IDs de material y sustancia
       const { data, error } = await supabase
         .from("soluciones_limpieza")
         .select(
@@ -411,7 +412,7 @@ export const supabaseService = {
         utensilios,
         materiales,
         precauciones,
-        id, // Extraer id por separado
+        id, 
         ...solutionFields
       } = solutionData;
 
@@ -419,7 +420,7 @@ export const supabaseService = {
       console.log("📤 Campos que se van a insertar:", solutionFields);
       console.log("🔍 ID extraído (no se insertará):", id);
 
-      // Asegurar que no haya ID en solutionFields
+      
       delete solutionFields.id;
       console.log("🧹 Después de eliminar id:", solutionFields);
 

@@ -129,43 +129,7 @@ const SearchForm = ({ onSearch, isLoading, isVisible, supabaseService }) => {
             No se pudieron cargar materiales y sustancias desde la base de datos
           </p>
 
-          <div
-            style={{
-              marginTop: "24px",
-              padding: "16px",
-              background: "rgba(59, 130, 246, 0.1)",
-              borderRadius: "12px",
-              textAlign: "left",
-            }}
-          >
-            <h3
-              style={{
-                margin: "0 0 12px 0",
-                color: "#1e293b",
-                fontSize: "16px",
-              }}
-            >
-              📋 Pasos para solucionar:
-            </h3>
-            <ol
-              style={{
-                margin: "0",
-                paddingLeft: "20px",
-                color: "#64748b",
-                fontSize: "14px",
-              }}
-            >
-              <li>
-                Haz clic en el botón <strong>"DEBUG"</strong> (esquina superior
-                derecha)
-              </li>
-              <li>Espera a que se carguen los datos de ejemplo</li>
-              <li>
-                Usa el botón <strong>"🔄 Recargar Datos"</strong> de abajo
-              </li>
-              <li>¡Listo! Ya puedes seleccionar material y sustancia</li>
-            </ol>
-          </div>
+          
 
           <button
             type="button"
@@ -228,8 +192,7 @@ const SearchForm = ({ onSearch, isLoading, isVisible, supabaseService }) => {
   return (
     <div className="modern-search-container">
       <div className="search-header">
-        <div className="search-icon">🔍</div>
-        <h2>¿Qué necesitas limpiar?</h2>
+                <h2>🔍¿Qué necesitas limpiar?</h2>
         <p>Selecciona el tipo de mancha y la superficie afectada</p>
       </div>{" "}
       <form onSubmit={handleSubmit} className="modern-search-form">
