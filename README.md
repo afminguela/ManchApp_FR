@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![ManchApp Hero](public/washing-machine-hero.jpg)
+![ManchApp Hero](Manchapp_FR/public/washing-machine-hero.jpg)
 
 **Una aplicación web interactiva para gestionar y descubrir soluciones efectivas para eliminar manchas y limpiar diferentes materiales. Parte de Adulting101**
 
@@ -10,6 +10,10 @@
 [![Vite](https://img.shields.io/badge/Vite-7.1.7-646cff?logo=vite)](https://vitejs.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Confluence](https://img.shields.io/badge/Documentation-Confluence-blue.svg)](https://afminguela.atlassian.net/wiki/x/kIDCBQ)
+[![Jira](https://img.shields.io/badge/Backlog-Jira-blue.svg)](https://afminguela.atlassian.net/jira/software/projects/MAC/summary?atlOrigin=eyJpIjoiNTI3NGJjY2JhNmJlNDI2MGI4MzI2NTUyNjIyMWRjOTMiLCJwIjoiaiJ9)
+
+
 
 [Demo](#) · [Documentación](#características) · [Instalación](#instalación) · [Contribuir](#contribución)
 
