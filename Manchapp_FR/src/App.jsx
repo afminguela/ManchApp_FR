@@ -442,9 +442,7 @@ function App() {
               onDelete={handleDeleteSolution}
               onLogout={handleLogout}
               onBackToSearch={
-                !showSearchForm && state.authenticated
-                  ? handleBackToSearch
-                  : null
+                searchResults.length > 0 ? handleBackToSearch : null
               }
             />
           </div>
