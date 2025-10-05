@@ -367,7 +367,7 @@ function App() {
           );
           if (error) throw error;
 
-          // data puede ser un array o un objeto dependiendo del método usado
+          
           const newSolution = Array.isArray(data) ? data[0] : data;
           setSolutions((prev) => [...prev, newSolution]);
         }
