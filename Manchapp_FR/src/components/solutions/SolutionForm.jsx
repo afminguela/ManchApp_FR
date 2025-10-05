@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import FormField from "../ui/FormField";
 import Button from "../ui/Button";
+import { supabaseService } from "../../supabaseClient";
 
 const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -11,12 +12,43 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
     categoria_id: "",
     efectividad: "",
     consejos: "",
+    material_id: "", // ID del material seleccionado
+    sustancia_id: "", // ID de la sustancia seleccionada
     ingredientes: [],
     utensilios: [],
     materiales: [],
     precauciones: [],
   });
   const [errors, setErrors] = useState({});
+  const [materialesDisponibles, setMaterialesDisponibles] = useState([]);
+  const [sustanciasDisponibles, setSustanciasDisponibles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Cargar materiales y sustancias al montar el componente
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [materialesRes, sustanciasRes] = await Promise.all([
+          supabaseService.getMateriales(),
+          supabaseService.getSustancias(),
+        ]);
+
+        if (materialesRes.data) {
+          setMaterialesDisponibles(materialesRes.data);
+        }
+        if (sustanciasRes.data) {
+          setSustanciasDisponibles(sustanciasRes.data);
+        }
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -31,6 +63,8 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
           "",
         efectividad: initialData.efectividad?.toString() || "",
         consejos: initialData.consejos || "",
+        material_id: initialData.material_id?.toString() || "",
+        sustancia_id: initialData.sustancia_id?.toString() || "",
         ingredientes: initialData.ingredientes || [],
         utensilios: initialData.utensilios || [],
         materiales: initialData.materiales || [],
@@ -71,6 +105,14 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
 
     if (!formData.descripcion.trim()) {
       newErrors.descripcion = "La descripción es requerida";
+    }
+
+    if (!formData.material_id) {
+      newErrors.material_id = "El material es requerido";
+    }
+
+    if (!formData.sustancia_id) {
+      newErrors.sustancia_id = "La sustancia/mancha es requerida";
     }
 
     if (!formData.dificultad) {
@@ -245,6 +287,46 @@ const SolutionForm = ({ onSubmit, initialData = null, onCancel }) => {
         error={errors.descripcion}
         required
       />
+
+      <div className="form-row">
+        <FormField
+          label="Material"
+          id="solution-material"
+          name="material_id"
+          type="select"
+          value={formData.material_id}
+          onChange={handleChange}
+          error={errors.material_id}
+          options={[
+            { value: "", label: "Seleccionar material" },
+            ...materialesDisponibles.map((material) => ({
+              value: material.id.toString(),
+              label: material.nombre,
+            })),
+          ]}
+          required
+          disabled={loading}
+        />
+
+        <FormField
+          label="Sustancia/Mancha"
+          id="solution-sustancia"
+          name="sustancia_id"
+          type="select"
+          value={formData.sustancia_id}
+          onChange={handleChange}
+          error={errors.sustancia_id}
+          options={[
+            { value: "", label: "Seleccionar sustancia" },
+            ...sustanciasDisponibles.map((sustancia) => ({
+              value: sustancia.id.toString(),
+              label: sustancia.nombre,
+            })),
+          ]}
+          required
+          disabled={loading}
+        />
+      </div>
 
       <div className="form-row">
         <FormField

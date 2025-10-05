@@ -9,7 +9,7 @@ const SolutionsList = ({
   showCompleteData = false,
 }) => {
   const [displayCount, setDisplayCount] = useState(
-    showCompleteData ? 6 : solutions.length
+    showCompleteData ? solutions.length : 6
   );
 
   const loadMore = () => {
@@ -44,12 +44,11 @@ const SolutionsList = ({
             solution={solution}
             onEdit={onEdit}
             onDelete={onDelete}
-            showCompleteData={showCompleteData}
           />
         ))}
       </div>
 
-      {hasMore && showCompleteData && (
+      {hasMore && !showCompleteData && (
         <div className="load-more-container">
           <Button variant="secondary" onClick={loadMore}>
             Cargar más soluciones ({solutions.length - displayCount} restantes)

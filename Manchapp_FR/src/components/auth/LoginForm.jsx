@@ -24,7 +24,7 @@ const LoginForm = ({ onSubmit }) => {
       }));
     }
   };
-
+// validacion de formulario
   const validateForm = () => {
     const newErrors = {};
 

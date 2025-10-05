@@ -1,12 +1,7 @@
 import DifficultyBadge from "./DifficultyBadge";
 import Button from "../ui/Button";
 
-const SolutionItem = ({
-  solution,
-  onEdit,
-  onDelete,
-  showCompleteData = false,
-}) => {
+const SolutionItem = ({ solution, onEdit, onDelete }) => {
   // Mapear campos de la base de datos a campos esperados por el componente
   const solutionData = {
     id: solution.id,
@@ -36,66 +31,62 @@ const SolutionItem = ({
           </p>
         )}
 
-        {showCompleteData && (
-          <div className="solution-details">
-            {/* Ingredientes */}
-            {solution.soluciones_limpieza_ingredientes &&
-              solution.soluciones_limpieza_ingredientes.length > 0 && (
-                <div className="detail-section">
-                  <h4>🧪 Ingredientes necesarios:</h4>
-                  <ul>
-                    {solution.soluciones_limpieza_ingredientes.map(
-                      (item, index) => (
-                        <li key={index}>
-                          <strong>
-                            {item.ingredientes?.sustancias?.nombre}
-                          </strong>
-                          {item.ingredientes?.tipo_ingrediente &&
-                            ` (${item.ingredientes.tipo_ingrediente})`}
-                          {item.ingredientes?.propiedades &&
-                            ` - ${item.ingredientes.propiedades}`}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-              )}
-
-            {/* Utensilios */}
-            {solution.soluciones_limpieza_utensilios &&
-              solution.soluciones_limpieza_utensilios.length > 0 && (
-                <div className="detail-section">
-                  <h4>🔧 Utensilios necesarios:</h4>
-                  <ul>
-                    {solution.soluciones_limpieza_utensilios.map(
-                      (item, index) => (
-                        <li key={index}>
-                          <strong>{item.utensilios?.nombre}</strong>
-                          {item.utensilios?.descripcion &&
-                            ` - ${item.utensilios.descripcion}`}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-              )}
-
-            {/* Precauciones */}
-            {solution.solucion_precauciones &&
-              solution.solucion_precauciones.length > 0 && (
-                <div className="detail-section">
-                  <h4>⚠️ Precauciones:</h4>
-                  <ul>
-                    {solution.solucion_precauciones.map((item, index) => (
-                      <li key={index} className="warning">
-                        {item.precauciones?.descripcion}
+        <div className="solution-details">
+          {/* Ingredientes */}
+          {solution.soluciones_limpieza_ingredientes &&
+            solution.soluciones_limpieza_ingredientes.length > 0 && (
+              <div className="detail-section">
+                <h4>🧪 Ingredientes necesarios:</h4>
+                <ul>
+                  {solution.soluciones_limpieza_ingredientes.map(
+                    (item, index) => (
+                      <li key={index}>
+                        <strong>{item.ingredientes?.sustancias?.nombre}</strong>
+                        {item.ingredientes?.tipo_ingrediente &&
+                          ` (${item.ingredientes.tipo_ingrediente})`}
+                        {item.ingredientes?.propiedades &&
+                          ` - ${item.ingredientes.propiedades}`}
                       </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-          </div>
-        )}
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+
+          {/* Utensilios */}
+          {solution.soluciones_limpieza_utensilios &&
+            solution.soluciones_limpieza_utensilios.length > 0 && (
+              <div className="detail-section">
+                <h4>🔧 Utensilios necesarios:</h4>
+                <ul>
+                  {solution.soluciones_limpieza_utensilios.map(
+                    (item, index) => (
+                      <li key={index}>
+                        <strong>{item.utensilios?.nombre}</strong>
+                        {item.utensilios?.descripcion &&
+                          ` - ${item.utensilios.descripcion}`}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+
+          {/* Precauciones */}
+          {solution.solucion_precauciones &&
+            solution.solucion_precauciones.length > 0 && (
+              <div className="detail-section">
+                <h4>⚠️ Precauciones:</h4>
+                <ul>
+                  {solution.solucion_precauciones.map((item, index) => (
+                    <li key={index} className="warning">
+                      {item.precauciones?.descripcion}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+        </div>
       </div>
 
       <div className="solution-actions">
