@@ -133,6 +133,11 @@ export const supabaseService = {
         .select(
           `
           *,
+          sustancias (
+            id,
+            nombre,
+            descripcion
+          ),
           soluciones_limpieza_ingredientes (
             ingredientes (
               id,
@@ -158,7 +163,7 @@ export const supabaseService = {
               descripcion
             )
           ),
-          solucion_material (
+          solucion_materiales (
             materiales (
               id,
               nombre,
@@ -182,7 +187,7 @@ export const supabaseService = {
       return { data: null, error };
     }
   },
-// Create 
+  // Create
   async createSolution(solution) {
     try {
       console.log("➕ Creando nueva solución:", solution);
@@ -248,7 +253,7 @@ export const supabaseService = {
       return { data: null, error };
     }
   },
-// Delete
+  // Delete
   async deleteSolution(id) {
     try {
       console.log("🗑️ Eliminando solución:", id);
@@ -378,13 +383,46 @@ export const supabaseService = {
         .select(
           `
           *,
-          solucion_material!inner(material_id),
-          soluciones_limpieza_ingredientes(
-            ingredientes(sustancia_id)
+          sustancias (
+            id,
+            nombre,
+            descripcion
+          ),
+          soluciones_limpieza_ingredientes (
+            ingredientes (
+              id,
+              tipo_ingrediente,
+              propiedades,
+              sustancias (
+                id,
+                nombre,
+                descripcion
+              )
+            )
+          ),
+          soluciones_limpieza_utensilios (
+            utensilios (
+              id,
+              nombre,
+              descripcion
+            )
+          ),
+          solucion_precauciones (
+            precauciones (
+              id,
+              descripcion
+            )
+          ),
+          solucion_materiales!inner (
+            materiales (
+              id,
+              nombre,
+              descripcion
+            )
           )
         `
         )
-        .eq("solucion_material.material_id", materialId);
+        .eq("solucion_materiales.material_id", materialId);
 
       if (error) {
         console.error("❌ Error en búsqueda:", error);
@@ -412,7 +450,7 @@ export const supabaseService = {
         utensilios,
         materiales,
         precauciones,
-        id, 
+        id,
         ...solutionFields
       } = solutionData;
 
@@ -420,7 +458,6 @@ export const supabaseService = {
       console.log("📤 Campos que se van a insertar:", solutionFields);
       console.log("🔍 ID extraído (no se insertará):", id);
 
-      
       delete solutionFields.id;
       console.log("🧹 Después de eliminar id:", solutionFields);
 
