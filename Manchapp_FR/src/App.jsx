@@ -357,7 +357,7 @@ function App() {
 
           setSolutions((prev) =>
             prev.map((s) =>
-              s.id === state.currentEditingSolution.id ? data[0] : s
+              s.id === state.currentEditingSolution.id ? data : s
             )
           );
         } else {
@@ -367,7 +367,9 @@ function App() {
           );
           if (error) throw error;
 
-          setSolutions((prev) => [...prev, data[0]]);
+          // data puede ser un array o un objeto dependiendo del método usado
+          const newSolution = Array.isArray(data) ? data[0] : data;
+          setSolutions((prev) => [...prev, newSolution]);
         }
 
         setShowSolutionModal(false);
