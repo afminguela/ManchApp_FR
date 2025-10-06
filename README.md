@@ -13,9 +13,9 @@
 [![Confluence](https://img.shields.io/badge/Documentation-Confluence-blue.svg)](https://afminguela.atlassian.net/wiki/x/kIDCBQ)
 [![Jira](https://img.shields.io/badge/Backlog-Jira-blue.svg)](https://afminguela.atlassian.net/jira/software/projects/MAC/summary?atlOrigin=eyJpIjoiNTI3NGJjY2JhNmJlNDI2MGI4MzI2NTUyNjIyMWRjOTMiLCJwIjoiaiJ9)
 
+[https://manchapp.vercel.app](ManchApp)
 
-
-[Demo](#) · [Documentación](#características) · [Instalación](#instalación) · [Contribuir](#contribución)
+[Demo]([App desplegada](https://manchapp.vercel.app/)) · [Documentación](#características) · [Instalación](#instalación) · [Contribuir](#contribución)
 
 </div>
 
@@ -466,6 +466,7 @@ ManchApp cumple con los estándares **WCAG 2.1 AAA**, incluyendo:
 - Spotify BSO
 - señorMarido por llevarse las fieras a pasear
 - BCNENG por los consejos de comunidad
+- Aïda por "menos CSS mas JSX"
 
 ---
 
