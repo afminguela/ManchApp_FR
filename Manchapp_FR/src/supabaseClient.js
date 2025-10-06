@@ -430,7 +430,7 @@ export const supabaseService = {
     }
   },
 
-  // Funciones con relaciones many-to-many
+  // ---------------------------------Funciones con relaciones many-to-many
   async createSolutionWithRelations(solutionData) {
     try {
       console.log("➕ Creando solución con relaciones:", solutionData);
@@ -444,7 +444,7 @@ export const supabaseService = {
         ...solutionFields
       } = solutionData;
 
-      // 1. Crear la solución principal
+      
       console.log("📤 Campos que se van a insertar:", solutionFields);
       console.log("🔍 ID extraído (no se insertará):", id);
 
@@ -462,7 +462,7 @@ export const supabaseService = {
       const solutionId = solution.id;
       console.log("✅ Solución principal creada con ID:", solutionId);
 
-      // 2. Manejar relaciones (con manejo de errores para no fallar toda la operación)
+      
       try {
         if (ingredientes && ingredientes.length > 0) {
           console.log("🔗 Procesando ingredientes...");
@@ -518,7 +518,7 @@ export const supabaseService = {
       return { data: null, error };
     }
   },
-
+// ------------------------Update con relaciones
   async updateSolutionWithRelations(solutionId, solutionData) {
     try {
       console.log("✏️ Actualizando solución con relaciones:", solutionId);
@@ -531,7 +531,6 @@ export const supabaseService = {
         ...solutionFields
       } = solutionData;
 
-      // 1. Actualizar la solución principal
       const { data: solution, error: solutionError } = await supabase
         .from("soluciones_limpieza")
         .update(solutionFields)
@@ -541,7 +540,6 @@ export const supabaseService = {
 
       if (solutionError) throw solutionError;
 
-      // 2. Actualizar relaciones
       if (ingredientes !== undefined) {
         await this.manageSolutionIngredientes(solutionId, ingredientes);
       }
@@ -566,7 +564,7 @@ export const supabaseService = {
     }
   },
 
-  // Funciones helper para manejar relaciones
+  // -------------------Funciones helper para manejar relaciones
   async manageSolutionIngredientes(solutionId, ingredientes) {
     try {
       await supabase
