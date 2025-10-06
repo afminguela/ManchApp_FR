@@ -133,11 +133,6 @@ export const supabaseService = {
         .select(
           `
           *,
-          sustancias (
-            id,
-            nombre,
-            descripcion
-          ),
           soluciones_limpieza_ingredientes (
             ingredientes (
               id,
@@ -163,7 +158,7 @@ export const supabaseService = {
               descripcion
             )
           ),
-          solucion_materiales (
+          solucion_material (
             materiales (
               id,
               nombre,
@@ -383,11 +378,6 @@ export const supabaseService = {
         .select(
           `
           *,
-          sustancias (
-            id,
-            nombre,
-            descripcion
-          ),
           soluciones_limpieza_ingredientes (
             ingredientes (
               id,
@@ -413,7 +403,7 @@ export const supabaseService = {
               descripcion
             )
           ),
-          solucion_materiales!inner (
+          solucion_material!inner (
             materiales (
               id,
               nombre,
@@ -422,7 +412,7 @@ export const supabaseService = {
           )
         `
         )
-        .eq("solucion_materiales.material_id", materialId);
+        .eq("solucion_material.material_id", materialId);
 
       if (error) {
         console.error("❌ Error en búsqueda:", error);
