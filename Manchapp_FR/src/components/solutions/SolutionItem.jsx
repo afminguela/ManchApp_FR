@@ -23,6 +23,7 @@ const SolutionItem = ({ solution, onEdit, onDelete, onClick }) => {
     <article
       className="solution-item clickable"
       onClick={handleCardClick}
+      role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
