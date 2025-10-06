@@ -240,12 +240,13 @@ La aplicación estará disponible en `http://localhost:5173`
 1. Click en "Editar" en cualquier card
 2. Formulario se pre-rellena con datos existentes
 3. Modificar campos necesarios
-4. "Guardar"
+4. "Guardar" 
 
 #### Eliminar solución
 
 1. Click en "Eliminar"
-2. Confirmar en modal de seguridad
+2. Confirmar en modal de seguridad 
+- Advertencia: por la lógica de negocio, eliminar una solución no elimina ingredientes, utensilios o precauciones asociados. 
 
 ### 4. Filtros Avanzados
 
@@ -359,14 +360,9 @@ soluciones_limpieza_materiales
 - **Solución → Utensilios**: Many-to-Many (múltiples herramientas)
 - **Solución → Precauciones**: Many-to-Many (múltiples advertencias)
 
-### Setup Detallado
+![Schema BD](/supabase-schema-qnpubedkzzpdajasjsuc%20(1).png) 
 
-Ver [SUPABASE_SETUP.md](SUPABASE_SETUP.md) para:
 
-- Script SQL completo del schema
-- Configuración de Row Level Security
-- Datos de ejemplo (seed)
-- Políticas de seguridad
 
 ---
 
@@ -383,9 +379,7 @@ npm run preview      # Preview del build de producción
 # Calidad de código
 npm run lint         # Ejecuta ESLint para encontrar errores
 
-# Debug (scripts auxiliares)
-node check-schema-simple.js   # Verifica schema de Supabase
-node debug-ids.js             # Test de auto-increment de IDs
+
 ```
 
 ---
